@@ -13,6 +13,24 @@ every setting back exactly as it was.
 ![The Show Mode menu](docs/screenshots/menu.png)
 
 <!-- downloads:start -->
+
+## Download
+
+**[v0.1.0](https://github.com/stoatworks-labs/showmode/releases/tag/v0.1.0)** — prebuilt for macOS. Pick your platform:
+
+<details>
+<summary><b>macOS</b> — Universal (Apple Silicon + Intel)</summary>
+
+| Build | Download | Size |
+| --- | --- | --- |
+| Universal (Apple Silicon + Intel) · .dmg disk image | [`showmode-0.1.0-macos-universal.dmg`](https://github.com/stoatworks-labs/showmode/releases/download/v0.1.0/showmode-0.1.0-macos-universal.dmg) | 290 KB |
+
+</details>
+
+All builds, checksums and release notes: [github.com/stoatworks-labs/showmode/releases](https://github.com/stoatworks-labs/showmode/releases).
+
+macOS builds are signed and notarised by Apple, so they open normally — no Gatekeeper warning and no quarantine step.
+
 <!-- downloads:end -->
 
 | Guard | How |
