@@ -1,9 +1,19 @@
 # Show Mode
 
-A macOS menu-bar app that locks a presentation/playback Mac down for a show, then puts every
-setting back exactly as it was.
+A macOS menu-bar app that locks a presentation or playback Mac down for a show, then puts
+every setting back exactly as it was.
 
 **⌃⌥⌘S** starts/ends show mode · **⌃⌥⌘F** pauses the cursor fence (to reach a show screen deliberately)
+
+> **Beta.** The power, screen-saver, hot-corner, Mission Control, True Tone and Night Shift
+> guards and every restore path were run end to end on macOS 26.4. The cursor fence has only
+> met a single-display Mac and the Do Not Disturb shortcuts have not been run — try it on
+> the show machine first. Full details in the [user guide](docs/USER-GUIDE.md).
+
+![The Show Mode menu](docs/screenshots/menu.png)
+
+<!-- downloads:start -->
+<!-- downloads:end -->
 
 | Guard | How |
 |---|---|
@@ -53,6 +63,8 @@ show-control script. `ShowMode --status` prints what it sees (read-only).
 ```bash
 scripts/build-app.sh
 ```
+
+This codebase was created with AI assistance, directed and reviewed by a human author.
 
 Universal `dist/Show Mode.app`, Developer ID–signed when that identity is in the keychain (a
 stable signature keeps the Accessibility grant across rebuilds).

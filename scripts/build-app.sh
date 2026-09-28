@@ -4,7 +4,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-VERSION="${VERSION:-0.1.0}"
+VERSION="$(sed -n 's/^let appVersion = "\(.*\)"/\1/p' Sources/ShowMode/Version.swift)"
+[ -n "$VERSION" ] || { echo "no appVersion in Sources/ShowMode/Version.swift" >&2; exit 1; }
 APP="dist/Show Mode.app"
 
 swift build -c release --arch arm64 --arch x86_64

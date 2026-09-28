@@ -4,6 +4,10 @@ import ServiceManagement
 @main
 struct ShowModeMain {
     static func main() {
+        if CommandLine.arguments.contains("--version") {
+            print(appVersion)
+            return
+        }
         if CommandLine.arguments.contains("--status") {
             printStatus()
             return
@@ -45,6 +49,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         item.menu = menu
         show.onChange = { [weak self] in self?.updateIcon() }
         updateIcon()
+
+        // For screenshots and a quick look without clicking through the menu.
+        if CommandLine.arguments.contains("--about") { StoatworksAbout.show() }
+        if CommandLine.arguments.contains("--open-menu") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { self.item.button?.performClick(nil) }
+        }
 
         if show.recoverIfNeeded() {
             notify("Show Mode restored settings left over from a session that did not end cleanly.")
@@ -147,6 +157,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         catch { alert("Launch at login", error.localizedDescription) }
     }
 
+    @objc private func about() { StoatworksAbout.show() }
+
     @objc private func quit() { NSApp.terminate(nil) }
 
     // MARK: Menu
@@ -244,6 +256,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(si)
 
         menu.addItem(.separator())
+        add(menu, "About Show Mode", #selector(about))
         add(menu, show.engaged ? "Quit (restores settings)" : "Quit", #selector(quit)).keyEquivalent = "q"
     }
 
