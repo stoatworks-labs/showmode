@@ -10,7 +10,9 @@ setting back exactly as it was.
 > **Before you rely on this:** the power, screen-saver, hot-corner, Mission Control, True
 > Tone and Night Shift guards were run end to end on a MacBook Pro running macOS 26.4, and
 > restoring was checked three ways: ending show mode, killing the app outright and
-> relaunching it, and stopping it with SIGTERM. Every setting came back.
+> relaunching it, and stopping it with SIGTERM. Every setting came back. The wallpaper
+> blackout was checked the same three ways on macOS 26.4.1, but only on its own (not as
+> part of a full show-mode start) and only on one display.
 >
 > **Not yet checked:** the cursor fence has only met a single-display Mac, so it has never
 > actually held a cursor back from a second screen; the Do Not Disturb shortcuts have been
@@ -63,6 +65,7 @@ the next start.
 | Disable hot corners | Sets all four corners to do nothing, and restarts the Dock so it takes effect. |
 | Disable Mission Control, Exposé & gestures | Turns off Mission Control and App Exposé, including their keys, and the swipe and pinch gestures for Mission Control, App Exposé, Show Desktop and Launchpad. Restarts the Dock. |
 | Disable click-wallpaper-to-show-desktop | Stops a stray click on the desktop sweeping every window aside. |
+| Black out desktop wallpaper | Paints the wallpaper black on every screen, including one plugged in mid-show, so an extended desktop never shows your wallpaper on the projector. The original comes back exactly, dynamic and aerial wallpapers and every Space included. |
 | Do Not Disturb | Turns on Do Not Disturb, so no notification banner lands on an output. See [Notifications](#notifications). |
 | Disable Night Shift | Turns Night Shift off **and** clears its schedule, so it cannot come back on at sunset mid-show. |
 | Disable True Tone | Stops the built-in display re-tinting itself to the room's light. |
@@ -112,8 +115,15 @@ it:
 open showmode://on
 ```
 
-The others are `showmode://off`, `showmode://toggle`, `showmode://fence-on` and
-`showmode://fence-off`.
+The others are `showmode://off`, `showmode://toggle`, `showmode://fence-on`,
+`showmode://fence-off`, `showmode://wallpaper-black` and `showmode://wallpaper-restore`.
+
+## Blacking out the wallpaper on its own
+
+**Black Out Wallpaper** in the menu (or `showmode://wallpaper-black`) blacks out every
+screen without starting show mode — for a rehearsal, or a desktop share. **Restore
+Wallpaper** puts it back and leaves everything else alone. Ending show mode, quitting, or a
+relaunch after a crash also restores it.
 
 ## Putting things back
 

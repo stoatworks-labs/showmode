@@ -29,6 +29,8 @@ struct ShowModeMain {
         print("Focus shortcuts: \(Focus.isInstalled ? "installed" : "not installed")")
         print("Accessibility:   \(CursorFence.accessibilityTrusted)")
         print("Journal pending: \(Journal.shared.exists)")
+        Journal.shared.load()
+        print("Wallpaper:       \(Wallpaper.blackedOut ? "blacked out" : "untouched")")
         print("Hot corners:     \(Prefs.hotCornerKeys.map { "\($0.key)=\($0.read() ?? "unset")" })")
         for d in DisplayInfo.all() {
             print("Display:         \(d.name) key=\(d.key) bounds=\(d.bounds)\(d.isMain ? " main" : "")")
@@ -66,6 +68,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification,
                                                object: nil, queue: .main) { [weak self] _ in
             self?.show.fence.recompute()
+            Wallpaper.applyBlack()
         }
 
         NSAppleEventManager.shared().setEventHandler(self, andSelector: #selector(handleURL(_:reply:)),
@@ -90,7 +93,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return .terminateNow
     }
 
-    // MARK: URL scheme: showmode://on | off | toggle | fence-on | fence-off
+    // MARK: URL scheme: showmode://on | off | toggle | fence-on | fence-off | wallpaper-black | wallpaper-restore
 
     @objc private func handleURL(_ event: NSAppleEventDescriptor, reply: NSAppleEventDescriptor) {
         guard let s = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
@@ -101,6 +104,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case "toggle": toggleShow()
         case "fence-on": if fencePaused { toggleFence() }
         case "fence-off": if !fencePaused { toggleFence() }
+        case "wallpaper-black": if !Wallpaper.blackedOut { toggleWallpaper() }
+        case "wallpaper-restore": if Wallpaper.blackedOut { toggleWallpaper() }
         default: break
         }
     }
@@ -118,6 +123,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         fencePaused.toggle()
         fencePaused ? show.fence.stop() : show.fence.start()
         updateIcon()
+    }
+
+    /// Black out or restore the wallpaper on its own, in or out of show mode.
+    @objc private func toggleWallpaper() {
+        Wallpaper.blackedOut ? Wallpaper.restoreOnly() : Wallpaper.blackOut()
     }
 
     @objc private func toggleGuard(_ sender: NSMenuItem) {
@@ -178,6 +188,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             i.isEnabled = false
             menu.addItem(i)
         }
+
+        add(menu, Wallpaper.blackedOut ? "Restore Wallpaper" : "Black Out Wallpaper", #selector(toggleWallpaper))
 
         menu.addItem(.separator())
         let head = NSMenuItem(title: "Keep cursor off:", action: nil, keyEquivalent: "")

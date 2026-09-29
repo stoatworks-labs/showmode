@@ -10,6 +10,7 @@ enum Guard: String, CaseIterable {
     case hotCorners
     case missionControl
     case clickToShowDesktop
+    case wallpaper
     case notifications
     case nightShift
     case trueTone
@@ -26,6 +27,7 @@ enum Guard: String, CaseIterable {
         case .hotCorners: return "Disable hot corners"
         case .missionControl: return "Disable Mission Control, Exposé & gestures"
         case .clickToShowDesktop: return "Disable click-wallpaper-to-show-desktop"
+        case .wallpaper: return "Black out desktop wallpaper"
         case .notifications: return "Do Not Disturb (notifications)"
         case .nightShift: return "Disable Night Shift"
         case .trueTone: return "Disable True Tone"

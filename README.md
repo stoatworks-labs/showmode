@@ -42,6 +42,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Hot corners | all four `wvous-*` set to no-op, Dock restarted |
 | Mission Control / App Exposé / gestures | `mcx-expose-disabled`, the four Dock gesture keys, Dock restarted |
 | Click wallpaper to show desktop | `com.apple.WindowManager EnableStandardClickToShowDesktop` |
+| Desktop wallpaper | black on every screen (and any plugged in mid-show); the WallpaperAgent store is copied and put back, so dynamic/aerial wallpapers and every Space return exactly |
 | Notifications | Do Not Disturb via two generated Shortcuts (see below) |
 | Night Shift | CoreBrightness `CBBlueLightClient` — disabled *and* its schedule cleared |
 | True Tone | CoreBrightness `CBTrueToneClient` |
@@ -73,7 +74,8 @@ mode, quitting, SIGTERM/SIGINT/SIGHUP and relaunching after a crash all restore.
 
 ## Automation
 
-`open showmode://on` · `off` · `toggle` · `fence-on` · `fence-off` — e.g. from Companion or a
+`open showmode://on` · `off` · `toggle` · `fence-on` · `fence-off` · `wallpaper-black` ·
+`wallpaper-restore` — e.g. from Companion or a
 show-control script. `ShowMode --status` prints what it sees (read-only).
 
 ## Build

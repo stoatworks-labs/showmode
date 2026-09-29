@@ -55,6 +55,8 @@ final class ShowController {
             Shell.killall("WindowManager")
         }
 
+        if s.isOn(.wallpaper) { Wallpaper.blackOut() }
+
         if s.isOn(.notifications) {
             if !Focus.isInstalled {
                 warnings.append("Do Not Disturb skipped: install the Focus shortcuts from the menu")
@@ -93,6 +95,7 @@ final class ShowController {
         if domains.contains("com.apple.WindowManager") { Shell.killall("WindowManager") }
         if domains.contains("NSGlobalDomain") { ColourShift.notifyAppearance() }
 
+        Wallpaper.restore()
         Focus.restore()
         ColourShift.restoreNightShift()
         ColourShift.restoreTrueTone()
