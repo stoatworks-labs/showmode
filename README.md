@@ -7,8 +7,8 @@ every setting back exactly as it was.
 
 > **Beta.** The power, screen-saver, hot-corner, Mission Control, True Tone and Night Shift
 > guards and every restore path were run end to end on macOS 26.4, and the cursor fence and
-> display lock on a real second display. The Do Not Disturb shortcuts have not been run —
-> try it on the show machine first. Full details in the [user guide](docs/USER-GUIDE.md).
+> display lock on a real second display, and the Do Not Disturb shortcuts (on, off, and off
+> again after a crash). Still beta — try it on the show machine first. Full details in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 

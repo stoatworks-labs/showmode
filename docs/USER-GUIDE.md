@@ -22,10 +22,13 @@ setting back exactly as it was.
 > reversals instead of fighting, and put the original main display back at the end of the
 > show and after the app was killed mid-show.
 >
+> **Do Not Disturb (checked 2026-09-29, macOS 26.4.1):** both shortcuts ran and switched Do
+> Not Disturb on and off, and show mode turned it on at start, off at the end, and off again
+> on the next launch after being killed mid-show.
+>
 > **Not yet checked:** the fence without Accessibility (its hide-near-the-edge fallback) and
 > its main-display warning; the display lock with AirPlay, Sidecar or DisplayLink screens,
-> which may not answer the mirroring call the way a cabled display does; the Do Not Disturb
-> shortcuts, which have been generated and signed but not run; hiding the cursor from a
+> which may not answer the mirroring call the way a cabled display does; hiding the cursor from a
 > background app, which relies on a private WindowServer call; and pinning the light/dark
 > appearance, which is best effort. Try it on the show machine, with the show screens
 > connected, before a show depends on it. **Released at v0.3.0 (beta).**
@@ -154,6 +157,10 @@ that do it for it. Choose **Setup → Install Do Not Disturb shortcuts**. After 
 minute Shortcuts asks you to add *Show Mode Focus On* and *Show Mode Focus Off*; add both.
 From then on show mode runs them itself. Until they are installed, show mode skips Do Not
 Disturb and says so.
+
+The shortcuts switch the built-in **Do Not Disturb** Focus, not any custom Focus you have
+made. Whatever that Focus allows through — people or apps you have allowed in System Settings
+→ Focus → Do Not Disturb — still gets through, so check its allow list on the show machine.
 
 ## Driving it from somewhere else
 
