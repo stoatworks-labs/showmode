@@ -19,7 +19,7 @@ setting back exactly as it was.
 > generated and signed but not run; hiding the cursor from a background app relies on a
 > private WindowServer call; and pinning the light/dark appearance is best effort. Try it
 > on the show machine, with the show screens connected, before a show depends on it.
-> **Released at v0.1.0 (beta).**
+> **Released at v0.2.0 (beta).**
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
 
