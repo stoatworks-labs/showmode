@@ -16,14 +16,14 @@ every setting back exactly as it was.
 
 ## Download
 
-**[v0.3.0](https://github.com/stoatworks-labs/showmode/releases/tag/v0.3.0)** — prebuilt for macOS. Pick your platform:
+**[v0.3.1](https://github.com/stoatworks-labs/showmode/releases/tag/v0.3.1)** — prebuilt for macOS. Pick your platform:
 
 <details>
 <summary><b>macOS</b> — Universal (Apple Silicon + Intel)</summary>
 
 | Build | Download | Size |
 | --- | --- | --- |
-| Universal (Apple Silicon + Intel) · .dmg disk image | [`showmode-0.3.0-macos-universal.dmg`](https://github.com/stoatworks-labs/showmode/releases/download/v0.3.0/showmode-0.3.0-macos-universal.dmg) | 342 KB |
+| Universal (Apple Silicon + Intel) · .dmg disk image | [`showmode-0.3.1-macos-universal.dmg`](https://github.com/stoatworks-labs/showmode/releases/download/v0.3.1/showmode-0.3.1-macos-universal.dmg) | 616 KB |
 
 </details>
 
