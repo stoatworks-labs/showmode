@@ -26,3 +26,11 @@ Invariants for anyone (human or agent) changing this repo.
   a real second display in-process. A helper that inspects display state must run a run loop
   or be a fresh process each time — CoreGraphics caches display state per process and only
   refreshes it from the run loop.
+- **Appearance goes through SkyLight** (`SLSSetAppearanceThemeSwitchesAutomatically`). Writing
+  `AppleInterfaceStyleSwitchesAutomatically` changes nothing live — System Settings kept
+  showing Auto — so never go back to the preference-key approach.
+- **Testing without Accessibility:** copy the built app, give it another bundle id, remove
+  its URL types and ad-hoc sign it. It has no TCC grant, so the fence runs its fallback, and
+  your own Security settings stay untouched. Drive it with a posted ⌃⌥⌘S.
+- **The app icon is drawn, not an SF Symbol** — Apple's SF Symbols licence does not allow
+  them in app icons. `scripts/make-icon.swift` writes `Resources/AppIcon.icns`.

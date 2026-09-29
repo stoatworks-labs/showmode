@@ -16,7 +16,7 @@ enum StoatworksAboutData {
     static let guide = "https://stoatworks-labs.com/software/showmode/guide/"
     static let page = "https://stoatworks-labs.com/software/showmode/"
     static let repo = "https://github.com/stoatworks-labs/showmode"
-    static let versionFallback = "v0.3.0"
+    static let versionFallback = "v0.3.1"
 
     static let org = "Stoatworks Labs"
     static let home = "https://stoatworks-labs.com"

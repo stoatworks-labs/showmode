@@ -95,22 +95,31 @@ enum ColourShift {
 
     // MARK: Automatic light/dark appearance
 
-    private static let autoKey = PrefKey(domain: "NSGlobalDomain", key: "AppleInterfaceStyleSwitchesAutomatically")
-    private static let styleKey = PrefKey(domain: "NSGlobalDomain", key: "AppleInterfaceStyle")
-
-    /// Freezes whatever appearance is showing now, so it cannot flip at sunset mid-show.
-    static func engageAppearance() {
-        guard autoKey.read() as? Bool == true else { return }
-        let dark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-        Journal.shared.recordPref(styleKey, previous: styleKey.read())
-        autoKey.override(false)
-        styleKey.write(dark ? "Dark" : nil)
-        notifyAppearance()
+    /// SkyLight's appearance calls — what System Settings itself uses. Writing the
+    /// AppleInterfaceStyleSwitchesAutomatically preference instead changes nothing live: the
+    /// appearance manager never rereads it, and System Settings kept showing Auto (checked on
+    /// macOS 26.4.1). Looked up at runtime, like the other private calls.
+    private enum SkyLightAppearance {
+        typealias GetAuto = @convention(c) () -> Bool
+        typealias SetAuto = @convention(c) (Bool) -> Void
+        private static let handle = dlopen("/System/Library/PrivateFrameworks/SkyLight.framework/SkyLight", RTLD_NOW)
+        static let get: GetAuto? = dlsym(handle, "SLSGetAppearanceThemeSwitchesAutomatically")
+            .map { unsafeBitCast($0, to: GetAuto.self) }
+        static let set: SetAuto? = dlsym(handle, "SLSSetAppearanceThemeSwitchesAutomatically")
+            .map { unsafeBitCast($0, to: SetAuto.self) }
     }
 
-    static func notifyAppearance() {
-        DistributedNotificationCenter.default().postNotificationName(
-            .init("AppleInterfaceThemeChangedNotification"), object: nil, userInfo: nil, deliverImmediately: true)
+    /// Freezes whatever appearance is showing now, so it cannot flip at sunset mid-show.
+    /// Turning automatic switching off leaves the current theme in place.
+    static func engageAppearance() {
+        guard let get = SkyLightAppearance.get, let set = SkyLightAppearance.set, get() else { return }
+        if Journal.shared["appearanceAuto"] == nil { Journal.shared["appearanceAuto"] = true }
+        set(false)
+    }
+
+    static func restoreAppearance() {
+        guard Journal.shared["appearanceAuto"] as? Bool == true, let set = SkyLightAppearance.set else { return }
+        set(true)
     }
 
     // MARK: Third-party colour apps

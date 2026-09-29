@@ -107,13 +107,13 @@ final class ShowController {
         let domains = Prefs.restoreAll()
         if domains.contains("com.apple.dock") { Shell.killall("Dock") }
         if domains.contains("com.apple.WindowManager") { Shell.killall("WindowManager") }
-        if domains.contains("NSGlobalDomain") { ColourShift.notifyAppearance() }
 
         DisplayLayout.restore()
         Wallpaper.restore()
         Focus.restore()
         ColourShift.restoreNightShift()
         ColourShift.restoreTrueTone()
+        ColourShift.restoreAppearance()
         ColourShift.relaunchColourApps()
 
         Journal.shared.clear()

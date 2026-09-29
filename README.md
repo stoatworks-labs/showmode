@@ -6,9 +6,9 @@ every setting back exactly as it was.
 **⌃⌥⌘S** starts/ends show mode · **⌃⌥⌘F** pauses the cursor fence (to reach a show screen deliberately)
 
 > **Beta.** The power, screen-saver, hot-corner, Mission Control, True Tone and Night Shift
-> guards and every restore path were run end to end on macOS 26.4, and the cursor fence and
-> display lock on a real second display, and the Do Not Disturb shortcuts (on, off, and off
-> again after a crash). Still beta — try it on the show machine first. Full details in the [user guide](docs/USER-GUIDE.md).
+> guards and every restore path were run end to end on macOS 26.4, and the cursor fence (with
+> and without Accessibility), the display lock, Do Not Disturb and appearance pinning on a
+> real two-screen setup. Still beta — try it on the show machine first. Full details in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 
@@ -46,7 +46,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Notifications | Do Not Disturb via two generated Shortcuts (see below) |
 | Night Shift | CoreBrightness `CBBlueLightClient` — disabled *and* its schedule cleared |
 | True Tone | CoreBrightness `CBTrueToneClient` |
-| Auto light/dark appearance | pins the current appearance (best effort) |
+| Auto light/dark appearance | SkyLight `SLSSetAppearanceThemeSwitchesAutomatically(false)` pins the showing appearance, the same call System Settings makes (the preference key alone changes nothing live); restored after |
 | Colour-shift apps | quits f.lux, Shifty, Lunar; relaunches them after |
 | Cursor fence | keeps the cursor off the screens you tick |
 | Display arrangement | keeps the chosen (or starting) main display main, and splits any screen that starts mirroring mid-show back to extended |

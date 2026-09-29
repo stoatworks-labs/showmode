@@ -163,8 +163,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             the Dock. With it blocked during a show you cannot reach either with the mouse. \
             ⌃⌥⌘F pauses the fence, and ⌃⌥⌘S ends show mode.
 
-            To make a different screen the main one, drag the menu bar in System Settings → \
-            Displays → Arrange.
+            To keep the menu bar on the operator's screen instead, choose that screen under \
+            Main Display in Show Mode's menu: it becomes the main display when the show starts.
             """
         a.addButton(withTitle: "Block Main Display")
         a.addButton(withTitle: "Cancel")

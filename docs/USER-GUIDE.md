@@ -26,12 +26,17 @@ setting back exactly as it was.
 > Not Disturb on and off, and show mode turned it on at start, off at the end, and off again
 > on the next launch after being killed mid-show.
 >
-> **Not yet checked:** the fence without Accessibility (its hide-near-the-edge fallback) and
-> its main-display warning; the display lock with AirPlay, Sidecar or DisplayLink screens,
-> which may not answer the mirroring call the way a cabled display does; hiding the cursor from a
-> background app, which relies on a private WindowServer call; and pinning the light/dark
-> appearance, which is best effort. Try it on the show machine, with the show screens
-> connected, before a show depends on it. **Released at v0.3.0 (beta).**
+> **Checked 2026-09-29 (v0.3.1):** the fence without Accessibility, which pulls the pointer
+> back within one mouse step and hides it near the show screen, and hiding the cursor from a
+> background app; the main-display warning, both its buttons, and the rule that the last
+> screen cannot be blocked; and pinning the light/dark appearance, which System Settings
+> showed switching from Auto to the showing appearance and back, including after a crash.
+>
+> **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
+> may not answer the mirroring call the way a cabled display does; and a real sunset under a
+> pinned appearance (the pin itself was checked, but not an evening switch it holds off). Try
+> it on the show machine, with the show screens connected, before a show depends on it.
+> **Released at v0.3.1 (beta).**
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
 
@@ -81,7 +86,7 @@ the next start.
 | Do Not Disturb | Turns on Do Not Disturb, so no notification banner lands on an output. See [Notifications](#notifications). |
 | Disable Night Shift | Turns Night Shift off **and** clears its schedule, so it cannot come back on at sunset mid-show. |
 | Disable True Tone | Stops the built-in display re-tinting itself to the room's light. |
-| Pin light/dark appearance | If the appearance switches automatically, holds whichever one is showing now. |
+| Pin light/dark appearance | If the appearance is set to Auto, switches it to whichever of Light or Dark is showing now, so it cannot flip at sunset mid-show. Auto comes back when the show ends. |
 | Quit colour-shift apps | Quits f.lux, Shifty and Lunar if they are running, and opens them again afterwards. |
 | Fence cursor off show screens | See [Keeping the cursor off the show screens](#keeping-the-cursor-off-the-show-screens). |
 | Lock main display & keep new screens extended | See [Keeping the display arrangement](#keeping-the-display-arrangement). |
@@ -98,8 +103,8 @@ The screen with the menu bar is marked so you can tell the built-in panel apart.
 The cursor always keeps at least one screen. The last unticked screen cannot be ticked, so
 on a Mac with only one screen there is nothing to tick. Ticking the main display — the one
 with the menu bar, Show Mode's own menu and the Dock — asks first, because during the show
-you could not reach any of those with the mouse. Usually the better fix is to move the menu
-bar to the operator screen in System Settings → Displays → Arrange.
+you could not reach any of those with the mouse. Usually the better fix is to choose the
+operator screen under **Main Display**, so the menu bar stays there for the show.
 
 How hard the fence is depends on one permission:
 
@@ -108,10 +113,13 @@ How hard the fence is depends on one permission:
   the nearest point on a screen you can use. In testing, a pointer glided at a show screen in
   10-pixel steps stopped dead at the edge; in 2 of 12 runs one sample caught it a few pixels
   over for less than one step (under 10 ms) before it was pulled back.
-- **Without it**: Show Mode checks the cursor 120 times a second and moves it back. That is
-  fast, but a quick flick can land on a show screen for an instant, so it also **hides the
-  cursor while it is near a show screen** — the crossing is never drawn. Turn that off with
-  *Hide cursor if it reaches a blocked screen* if you would rather see it.
+- **Without it**: Show Mode checks the cursor 120 times a second and moves it back. In
+  testing, one movement of the mouse — about 10 pixels at a normal pace, 60 on a fast flick —
+  could land on the show screen for up to 8 ms before being pulled back. So it also **hides
+  the cursor within 48 pixels of a show screen**: an ordinary approach is never drawn on the
+  other side, and only a flick that starts further away than that can show for an instant.
+  Turn the hiding off with *Hide cursor if it reaches a blocked screen* if you would rather
+  see it. Granting Accessibility is the better answer on a show machine.
 
 **⌃⌥⌘F** pauses the fence (and again to resume) when you need to reach a show screen on
 purpose — to drag a window onto it, say. The masks change to a circle while it is paused.
