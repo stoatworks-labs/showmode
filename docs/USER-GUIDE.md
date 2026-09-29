@@ -14,12 +14,21 @@ setting back exactly as it was.
 > blackout was checked the same three ways on macOS 26.4.1, but only on its own (not as
 > part of a full show-mode start) and only on one display.
 >
-> **Not yet checked:** the cursor fence has only met a single-display Mac, so it has never
-> actually held a cursor back from a second screen or shown its main-display warning; the Do Not Disturb shortcuts have been
-> generated and signed but not run; hiding the cursor from a background app relies on a
-> private WindowServer call; and pinning the light/dark appearance is best effort. Try it
-> on the show machine, with the show screens connected, before a show depends on it.
-> **Released at v0.2.0 (beta).**
+> **Checked on a second screen (v0.3.0):** with a real extended display attached (a Roland
+> USB video output) and a virtual one, the cursor fence held a gliding pointer at the edge
+> with Accessibility granted and pulled back a pointer warped onto the show screen; pausing
+> and resuming it worked. The display lock split a mirrored display back to extended, made
+> the locked display main again after something else took over, gave up after repeated
+> reversals instead of fighting, and put the original main display back at the end of the
+> show and after the app was killed mid-show.
+>
+> **Not yet checked:** the fence without Accessibility (its hide-near-the-edge fallback) and
+> its main-display warning; the display lock with AirPlay, Sidecar or DisplayLink screens,
+> which may not answer the mirroring call the way a cabled display does; the Do Not Disturb
+> shortcuts, which have been generated and signed but not run; hiding the cursor from a
+> background app, which relies on a private WindowServer call; and pinning the light/dark
+> appearance, which is best effort. Try it on the show machine, with the show screens
+> connected, before a show depends on it. **Released at v0.3.0 (beta).**
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
 
@@ -71,7 +80,8 @@ the next start.
 | Disable True Tone | Stops the built-in display re-tinting itself to the room's light. |
 | Pin light/dark appearance | If the appearance switches automatically, holds whichever one is showing now. |
 | Quit colour-shift apps | Quits f.lux, Shifty and Lunar if they are running, and opens them again afterwards. |
-| Fence cursor off show screens | See below. |
+| Fence cursor off show screens | See [Keeping the cursor off the show screens](#keeping-the-cursor-off-the-show-screens). |
+| Lock main display & keep new screens extended | See [Keeping the display arrangement](#keeping-the-display-arrangement). |
 
 Starting show mode restarts the Dock once, which makes the Dock and the menu bar flicker
 for a moment. Do it before doors, not during a cue.
@@ -92,7 +102,9 @@ How hard the fence is depends on one permission:
 
 - **With Accessibility granted** (Setup → *Grant Accessibility for a hard cursor fence*):
   every mouse movement that would land on a show screen is caught on its way in and moved to
-  the nearest point on a screen you can use. The cursor never gets there.
+  the nearest point on a screen you can use. In testing, a pointer glided at a show screen in
+  10-pixel steps stopped dead at the edge; in 2 of 12 runs one sample caught it a few pixels
+  over for less than one step (under 10 ms) before it was pulled back.
 - **Without it**: Show Mode checks the cursor 120 times a second and moves it back. That is
   fast, but a quick flick can land on a show screen for an instant, so it also **hides the
   cursor while it is near a show screen** — the crossing is never drawn. Turn that off with
@@ -103,6 +115,37 @@ purpose — to drag a window onto it, say. The masks change to a circle while it
 
 The fence also stands down on its own rather than trap you: if every screen is ticked, or the
 only screen you left unticked is unplugged, it does nothing until that changes.
+
+## Keeping the display arrangement
+
+With **Lock main display & keep new screens extended** on (it is by default), show mode holds
+the display arrangement the show started with.
+
+**The main display stays put.** The main display is the one with the menu bar and the Dock,
+and it is where new windows and many apps' dialogs appear. Choose it under **Main Display**,
+or leave that on *Whichever is main at start*. If anything makes a different screen main
+during the show — a display reconnecting, a projector macOS remembers from another venue —
+show mode moves it back within about a second. The arrangement itself is kept: the screens
+stay where they are relative to each other, only which one carries the menu bar changes back.
+If the display you chose is not connected at start, show mode says so and makes it main the
+moment it appears.
+
+**New mirrors become extended.** Whatever is mirrored when the show starts is taken as
+deliberate — a confidence monitor showing the output, say — and left alone. Any screen that
+starts mirroring during the show, whether a newly plugged-in projector that macOS decides to
+mirror or a stray ⌘F1, is split back out to an extended display about a second later.
+
+Changing which display is main makes every screen blink for a moment, the way it does in
+System Settings. Show mode only does it when something else has already moved the main
+display, but choose the main display before doors rather than mid-cue. If something keeps
+undoing the arrangement — four corrections inside twenty seconds — show mode stops fighting
+it, says so in its menu, and leaves the screens alone for the rest of the show.
+
+When the show ends, the display that was main before it becomes main again. Screens that
+were split out of a mirror stay extended: the mirror was macOS's guess, not yours.
+
+Choosing a main display that is also fenced off puts the menu bar out of the cursor's reach,
+so show mode warns you at start. ⌃⌥⌘F pauses the fence.
 
 ## Notifications
 
@@ -130,6 +173,12 @@ The others are `showmode://off`, `showmode://toggle`, `showmode://fence-on`,
 screen without starting show mode — for a rehearsal, or a desktop share. **Restore
 Wallpaper** puts it back and leaves everything else alone. Ending show mode, quitting, or a
 relaunch after a crash also restores it.
+
+## What it did
+
+Show mode keeps a plain log of what it changes at `~/Library/Logs/ShowMode.log` — the fence
+coming on and in which mode, and every correction the display lock makes. Console.app opens
+it.
 
 ## Putting things back
 

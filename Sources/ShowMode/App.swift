@@ -171,6 +171,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return a.runModal() == .alertFirstButtonReturn
     }
 
+    @objc private func chooseMain(_ sender: NSMenuItem) {
+        Settings.shared.mainDisplay = sender.representedObject as? String
+        // Mid-show, a new choice takes effect now rather than at the next start.
+        if show.engaged && Settings.shared.isOn(.displayLayout) {
+            show.layout.stop()
+            show.layout.start()
+        }
+    }
+
     @objc private func toggleHide() { Settings.shared.hideOnBlocked.toggle() }
 
     @objc private func grantAccessibility() {
@@ -211,7 +220,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let toggle = add(menu, show.engaged ? "End Show Mode" : "Start Show Mode", #selector(toggleShow))
         toggle.keyEquivalent = "s"
         toggle.keyEquivalentModifierMask = [.control, .option, .command]
-        for w in show.warnings {
+        for w in show.warnings + [show.layout.problem].compactMap({ $0 }) {
             let i = NSMenuItem(title: "⚠︎ " + w, action: nil, keyEquivalent: "")
             i.isEnabled = false
             menu.addItem(i)
@@ -259,6 +268,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             p.keyEquivalentModifierMask = [.control, .option, .command]
             p.indentationLevel = 1
         }
+
+        menu.addItem(.separator())
+        let mainMenu = NSMenu()
+        let intended = s.mainDisplay
+        let atStart = NSMenuItem(title: "Whichever is main at start", action: #selector(chooseMain(_:)), keyEquivalent: "")
+        atStart.target = self
+        atStart.state = intended == nil ? .on : .off
+        mainMenu.addItem(atStart)
+        mainMenu.addItem(.separator())
+        for d in displays {
+            let i = NSMenuItem(title: d.name + (d.isMain ? " (main now)" : ""), action: #selector(chooseMain(_:)), keyEquivalent: "")
+            i.target = self
+            i.representedObject = d.key
+            i.state = intended == d.key ? .on : .off
+            mainMenu.addItem(i)
+        }
+        if let intended, !displays.contains(where: { $0.key == intended }) {
+            let i = NSMenuItem(title: "Chosen display (not connected)", action: nil, keyEquivalent: "")
+            i.state = .on
+            i.isEnabled = false
+            mainMenu.addItem(i)
+        }
+        if !s.isOn(.displayLayout) {
+            mainMenu.addItem(.separator())
+            let off = NSMenuItem(title: "Off: turn on in What Show Mode Disables", action: nil, keyEquivalent: "")
+            off.isEnabled = false
+            mainMenu.addItem(off)
+        }
+        let mainItem = NSMenuItem(title: "Main Display", action: nil, keyEquivalent: "")
+        mainItem.submenu = mainMenu
+        menu.addItem(mainItem)
 
         menu.addItem(.separator())
         let guards = NSMenu()

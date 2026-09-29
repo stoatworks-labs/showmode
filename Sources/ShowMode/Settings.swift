@@ -17,6 +17,7 @@ enum Guard: String, CaseIterable {
     case autoAppearance
     case colourApps
     case cursorFence
+    case displayLayout
 
     var title: String {
         switch self {
@@ -34,6 +35,7 @@ enum Guard: String, CaseIterable {
         case .autoAppearance: return "Pin light/dark appearance"
         case .colourApps: return "Quit colour-shift apps (f.lux etc.)"
         case .cursorFence: return "Fence cursor off show screens"
+        case .displayLayout: return "Lock main display & keep new screens extended"
         }
     }
 
@@ -54,6 +56,12 @@ final class Settings {
     var blockedDisplays: Set<String> {
         get { Set(d.stringArray(forKey: "blockedDisplays") ?? []) }
         set { d.set(Array(newValue).sorted(), forKey: "blockedDisplays") }
+    }
+
+    /// Key of the display kept main during a show; nil means whichever is main at start.
+    var mainDisplay: String? {
+        get { d.string(forKey: "mainDisplay") }
+        set { d.set(newValue, forKey: "mainDisplay") }
     }
 
     /// Hide the cursor when it reaches a blocked display anyway (the fallback when it cannot

@@ -71,6 +71,8 @@ final class CursorFence {
         RunLoop.main.add(t, forMode: .common)
         poll = t
         check()
+        ShowLog.note("cursor fence: on, \(blocked.count) screen(s) blocked, "
+                     + (tap != nil ? "event tap (hard fence)" : "poll + hide (no Accessibility)"))
     }
 
     func stop() {

@@ -19,3 +19,10 @@ Invariants for anyone (human or agent) changing this repo.
   both read it.
 - **Verify on a real machine.** What is and is not verified lives in `docs/USER-GUIDE.md`'s
   status block — update it when something new is actually run, never because it compiles.
+- **Display lock:** `DisplayLayout` registers and removes ONE C callback constant — removal
+  matches on the function pointer, and two identical closure literals are two pointers. Keep
+  its fight limit: a layout something else keeps reverting must be let go, not looped on.
+- **Testing multi-display without a rig:** a `CGVirtualDisplay` (private, CoreGraphics) makes
+  a real second display in-process. A helper that inspects display state must run a run loop
+  or be a fresh process each time — CoreGraphics caches display state per process and only
+  refreshes it from the run loop.

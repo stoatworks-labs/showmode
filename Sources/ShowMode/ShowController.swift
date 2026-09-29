@@ -8,6 +8,7 @@ final class ShowController {
 
     private(set) var engaged = false
     let fence = CursorFence()
+    let layout = DisplayLayout()
     private let sleep = SleepAssertion()
     /// Messages from the last engage worth showing (a guard that could not apply).
     private(set) var warnings: [String] = []
@@ -70,6 +71,18 @@ final class ShowController {
         if s.isOn(.trueTone) { ColourShift.engageTrueTone() }
         if s.isOn(.autoAppearance) { ColourShift.engageAppearance() }
 
+        // Before the fence, so it fences the arrangement the show will actually run on.
+        if s.isOn(.displayLayout) {
+            layout.onChange = { [weak self] in self?.onChange?() }
+            layout.start()
+            if let want = s.mainDisplay, !DisplayLayout.online().contains(where: { DisplayLayout.key($0) == want }) {
+                warnings.append("The chosen main display is not connected; it becomes main when it is")
+            }
+            if s.isOn(.cursorFence), s.blockedDisplays.contains(DisplayLayout.intendedMain) {
+                warnings.append("The main display is fenced off: the menu bar is out of the cursor's reach (⌃⌥⌘F pauses the fence)")
+            }
+        }
+
         if s.isOn(.cursorFence) {
             fence.start()
             if !CursorFence.accessibilityTrusted {
@@ -83,6 +96,7 @@ final class ShowController {
 
     func restore() {
         fence.stop()
+        layout.stop()
         sleep.release()
         Journal.shared.load()
         guard Journal.shared.exists else { engaged = false; onChange?(); return }
@@ -95,6 +109,7 @@ final class ShowController {
         if domains.contains("com.apple.WindowManager") { Shell.killall("WindowManager") }
         if domains.contains("NSGlobalDomain") { ColourShift.notifyAppearance() }
 
+        DisplayLayout.restore()
         Wallpaper.restore()
         Focus.restore()
         ColourShift.restoreNightShift()

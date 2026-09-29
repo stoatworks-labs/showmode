@@ -6,9 +6,9 @@ every setting back exactly as it was.
 **⌃⌥⌘S** starts/ends show mode · **⌃⌥⌘F** pauses the cursor fence (to reach a show screen deliberately)
 
 > **Beta.** The power, screen-saver, hot-corner, Mission Control, True Tone and Night Shift
-> guards and every restore path were run end to end on macOS 26.4. The cursor fence has only
-> met a single-display Mac and the Do Not Disturb shortcuts have not been run — try it on
-> the show machine first. Full details in the [user guide](docs/USER-GUIDE.md).
+> guards and every restore path were run end to end on macOS 26.4, and the cursor fence and
+> display lock on a real second display. The Do Not Disturb shortcuts have not been run —
+> try it on the show machine first. Full details in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 
@@ -49,6 +49,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Auto light/dark appearance | pins the current appearance (best effort) |
 | Colour-shift apps | quits f.lux, Shifty, Lunar; relaunches them after |
 | Cursor fence | keeps the cursor off the screens you tick |
+| Display arrangement | keeps the chosen (or starting) main display main, and splits any screen that starts mirroring mid-show back to extended |
 
 ## Cursor fence
 
@@ -61,6 +62,15 @@ display — the menu bar and Dock — asks first. If every screen still ends up 
 allowed one is unplugged, the fence stands down rather than trap the cursor.
 
 Screens are remembered by vendor/model/serial, so the choice survives replugging and reboots.
+
+## Display arrangement
+
+The main display is made main by moving it to the origin of the global display space
+(`CGConfigureDisplayOrigin`, every display shifted by the same amount, so the arrangement is
+kept). A reconfiguration callback, debounced by a second, re-applies it and splits new mirrors
+(`CGConfigureDisplayMirrorOfDisplay(…, kCGNullDirectDisplay)`); displays already mirrored at
+start are left alone. Four corrections in twenty seconds and it stops. The previous main
+display is journalled and restored. Activity goes to `~/Library/Logs/ShowMode.log`.
 
 ## Notifications
 
