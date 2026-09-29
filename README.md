@@ -1,5 +1,8 @@
 # Show Mode
 
+> **AI-assisted project.** This codebase was created with [Claude](https://claude.com/claude-code)
+> (Anthropic), directed and reviewed by a human author.
+
 A macOS menu-bar app that locks a presentation or playback Mac down for a show, then puts
 every setting back exactly as it was.
 
@@ -95,8 +98,6 @@ show-control script. `ShowMode --status` prints what it sees (read-only).
 ```bash
 scripts/build-app.sh
 ```
-
-This codebase was created with AI assistance, directed and reviewed by a human author.
 
 Universal `dist/Show Mode.app`, Developer ID–signed when that identity is in the keychain (a
 stable signature keeps the Accessibility grant across rebuilds).
