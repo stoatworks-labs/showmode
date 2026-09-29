@@ -15,7 +15,7 @@ setting back exactly as it was.
 > part of a full show-mode start) and only on one display.
 >
 > **Not yet checked:** the cursor fence has only met a single-display Mac, so it has never
-> actually held a cursor back from a second screen; the Do Not Disturb shortcuts have been
+> actually held a cursor back from a second screen or shown its main-display warning; the Do Not Disturb shortcuts have been
 > generated and signed but not run; hiding the cursor from a background app relies on a
 > private WindowServer call; and pinning the light/dark appearance is best effort. Try it
 > on the show machine, with the show screens connected, before a show depends on it.
@@ -82,6 +82,12 @@ Under **Keep cursor off**, tick each screen the audience sees. Screens are remem
 their make, model and serial number, so the choice survives unplugging them and restarting.
 The screen with the menu bar is marked so you can tell the built-in panel apart.
 
+The cursor always keeps at least one screen. The last unticked screen cannot be ticked, so
+on a Mac with only one screen there is nothing to tick. Ticking the main display — the one
+with the menu bar, Show Mode's own menu and the Dock — asks first, because during the show
+you could not reach any of those with the mouse. Usually the better fix is to move the menu
+bar to the operator screen in System Settings → Displays → Arrange.
+
 How hard the fence is depends on one permission:
 
 - **With Accessibility granted** (Setup → *Grant Accessibility for a hard cursor fence*):
@@ -95,7 +101,7 @@ How hard the fence is depends on one permission:
 **⌃⌥⌘F** pauses the fence (and again to resume) when you need to reach a show screen on
 purpose — to drag a window onto it, say. The masks change to a circle while it is paused.
 
-The fence stands down on its own rather than trap you: if every screen is ticked, or the
+The fence also stands down on its own rather than trap you: if every screen is ticked, or the
 only screen you left unticked is unplugged, it does nothing until that changes.
 
 ## Notifications

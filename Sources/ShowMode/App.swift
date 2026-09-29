@@ -138,9 +138,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func toggleDisplay(_ sender: NSMenuItem) {
         guard let key = sender.representedObject as? String else { return }
         var blocked = Settings.shared.blockedDisplays
-        if blocked.contains(key) { blocked.remove(key) } else { blocked.insert(key) }
+        if blocked.contains(key) {
+            blocked.remove(key)
+        } else {
+            let displays = DisplayInfo.all()
+            // The cursor always keeps at least one connected screen: never block the last one.
+            guard displays.contains(where: { $0.key != key && !blocked.contains($0.key) }) else { return }
+            if let d = displays.first(where: { $0.key == key }), d.isMain, !confirmBlockMain(d) { return }
+            blocked.insert(key)
+        }
         Settings.shared.blockedDisplays = blocked
         show.fence.recompute()
+    }
+
+    /// The menu bar, the Dock and new windows live on the main display, so blocking it is
+    /// rarely what an operator means. Asks first.
+    private func confirmBlockMain(_ d: DisplayInfo) -> Bool {
+        NSApp.activate(ignoringOtherApps: true)
+        let a = NSAlert()
+        a.alertStyle = .warning
+        a.messageText = "Keep the cursor off \(d.name)?"
+        a.informativeText = """
+            This is the main display: it has the menu bar, including Show Mode's own menu, and \
+            the Dock. With it blocked during a show you cannot reach either with the mouse. \
+            ⌃⌥⌘F pauses the fence, and ⌃⌥⌘S ends show mode.
+
+            To make a different screen the main one, drag the menu bar in System Settings → \
+            Displays → Arrange.
+            """
+        a.addButton(withTitle: "Block Main Display")
+        a.addButton(withTitle: "Cancel")
+        return a.runModal() == .alertFirstButtonReturn
     }
 
     @objc private func toggleHide() { Settings.shared.hideOnBlocked.toggle() }
@@ -204,6 +232,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             i.representedObject = d.key
             i.state = blocked.contains(d.key) ? .on : .off
             i.indentationLevel = 1
+            // The last screen left to the cursor cannot be ticked.
+            if !blocked.contains(d.key),
+               !displays.contains(where: { $0.key != d.key && !blocked.contains($0.key) }) {
+                i.action = nil
+                i.toolTip = "The cursor needs at least one screen it can reach"
+            }
+        }
+        if displays.count == 1 {
+            let i = NSMenuItem(title: "Only one screen: nothing to fence off", action: nil, keyEquivalent: "")
+            i.isEnabled = false
+            i.indentationLevel = 1
+            menu.addItem(i)
         }
         if displays.allSatisfy({ blocked.contains($0.key) }) {
             let i = NSMenuItem(title: "⚠︎ Every screen blocked: fence stands down", action: nil, keyEquivalent: "")

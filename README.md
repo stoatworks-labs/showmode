@@ -55,7 +55,9 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 Tick the show screens under **Keep cursor off**. With Accessibility granted, an event tap
 rewrites any mouse move that would land on one to the nearest point on an allowed screen, so the
 cursor never gets in. Without it, a 120 Hz poll warps it back, and the cursor is hidden while it
-is near a blocked screen so the crossing is never drawn. If every screen is blocked, or the only
+is near a blocked screen so the crossing is never drawn. The menu will not let you block the
+last unblocked screen (so a single-display Mac cannot be fenced at all), and blocking the main
+display — the menu bar and Dock — asks first. If every screen still ends up blocked, or the only
 allowed one is unplugged, the fence stands down rather than trap the cursor.
 
 Screens are remembered by vendor/model/serial, so the choice survives replugging and reboots.
