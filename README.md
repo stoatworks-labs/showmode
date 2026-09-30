@@ -53,6 +53,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Colour-shift apps | quits f.lux, Shifty, Lunar; relaunches them after |
 | Cursor fence | keeps the cursor off the screens you tick |
 | Display arrangement | keeps the chosen (or starting) main display main, and splits any screen that starts mirroring mid-show back to extended |
+| Privacy dots | SkyLight `SLSSetSuppressPrivacyIndicatorOnExternalDisplays(true)`, the Privacy Indicators switch; only once the Recovery-only `system-override suppress-sw-camera-indication-on-external-displays=on` is set, and only on full-screen external displays (macOS rule). Restored after |
 
 ## Cursor fence
 
@@ -74,6 +75,16 @@ kept). A reconfiguration callback, debounced by a second, re-applies it and spli
 (`CGConfigureDisplayMirrorOfDisplay(…, kCGNullDirectDisplay)`); displays already mirrored at
 start are left alone. Four corrections in twenty seconds and it stops. The previous main
 display is journalled and restored. Activity goes to `~/Library/Logs/ShowMode.log`.
+
+## Privacy dots
+
+No app can hide the microphone/camera/screen-recording dots. Show Mode reports them instead:
+WindowServer draws each dot as a window named `StatusIndicator` (readable without Screen
+Recording access), which gives the screens showing one; CoreAudio process objects
+(`kAudioProcessPropertyIsRunningInput`, macOS 14.2+) name the app on the microphone, and
+CoreMediaIO says whether a camera is running. If neither, it is screen recording. The Recovery
+override is read with `/usr/bin/system-override <key>`, which needs no root outside Recovery.
+See the [user guide](docs/USER-GUIDE.md#privacy-dots) for the one-time setup.
 
 ## Notifications
 

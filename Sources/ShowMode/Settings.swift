@@ -18,6 +18,7 @@ enum Guard: String, CaseIterable {
     case colourApps
     case cursorFence
     case displayLayout
+    case privacyDots
 
     var title: String {
         switch self {
@@ -36,6 +37,7 @@ enum Guard: String, CaseIterable {
         case .colourApps: return "Quit colour-shift apps (f.lux etc.)"
         case .cursorFence: return "Fence cursor off show screens"
         case .displayLayout: return "Lock main display & keep new screens extended"
+        case .privacyDots: return "Hide privacy dots on full-screen external displays"
         }
     }
 

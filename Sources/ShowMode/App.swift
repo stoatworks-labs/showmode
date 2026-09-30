@@ -29,6 +29,11 @@ struct ShowModeMain {
         print("Focus shortcuts: \(Focus.isInstalled ? "installed" : "not installed")")
         print("Accessibility:   \(CursorFence.accessibilityTrusted)")
         print("Journal pending: \(Journal.shared.exists)")
+        print("Dot override:    \(PrivacyDots.externalOverride())")
+        print("Dots suppressed: \(PrivacyDots.suppressed.map { "\($0)" } ?? "unavailable")")
+        print("Privacy dots:    \(PrivacyDots.showingOn().map(\.name))")
+        print("Microphone:      \(PrivacyDots.microphoneUsers())")
+        print("Camera in use:   \(PrivacyDots.cameraInUse())")
         Journal.shared.load()
         print("Wallpaper:       \(Wallpaper.blackedOut ? "blacked out" : "untouched")")
         print("Hot corners:     \(Prefs.hotCornerKeys.map { "\($0.key)=\($0.read() ?? "unset")" })")
@@ -115,7 +120,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func toggleShow() {
         fencePaused = false
         show.toggle()
-        if show.engaged, !show.warnings.isEmpty { notify(show.warnings.joined(separator: "\n")) }
+        guard show.engaged else { return }
+        let notes = show.warnings + [PrivacyDots.problem()].compactMap { $0 }
+        if !notes.isEmpty { notify(notes.joined(separator: "\n")) }
     }
 
     @objc private func toggleFence() {
@@ -198,6 +205,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
+    /// Hiding the dots needs a restart into Recovery, which Show Mode cannot do for you.
+    @objc private func explainPrivacyDots() {
+        NSApp.activate(ignoringOtherApps: true)
+        let a = NSAlert()
+        a.messageText = "Hide privacy dots on external displays"
+        a.informativeText = """
+            macOS shows an orange dot while the microphone is in use and a green one for the \
+            camera. No app can turn them off, but macOS can leave them off an external display \
+            that is showing a full-screen app:
+
+            1. Start up in Recovery, choose Utilities ▸ Terminal and run:
+               system-override \(PrivacyDots.overrideKey)=on
+            2. Restart. From then on Show Mode turns the dots off on external displays for \
+            each show and back on afterwards (the Privacy Indicators switch under System \
+            Settings ▸ Privacy & Security ▸ Microphone does the same by hand).
+
+            The main display always keeps its dots, so make the operator's screen the main \
+            display (Main Display in this menu). The purple screen-recording dot cannot be \
+            hidden at all.
+            """
+        a.addButton(withTitle: "Open Apple's Instructions")
+        a.addButton(withTitle: "Close")
+        if a.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(PrivacyDots.appleGuide) }
+    }
+
+    @objc private func openPrivacyIndicators() {
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
+    }
+
     @objc private func toggleLogin() {
         let svc = SMAppService.mainApp
         do { svc.status == .enabled ? try svc.unregister() : try svc.register() }
@@ -220,7 +256,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let toggle = add(menu, show.engaged ? "End Show Mode" : "Start Show Mode", #selector(toggleShow))
         toggle.keyEquivalent = "s"
         toggle.keyEquivalentModifierMask = [.control, .option, .command]
-        for w in show.warnings + [show.layout.problem].compactMap({ $0 }) {
+        for w in show.warnings + [show.layout.problem, PrivacyDots.problem()].compactMap({ $0 }) {
             let i = NSMenuItem(title: "⚠︎ " + w, action: nil, keyEquivalent: "")
             i.isEnabled = false
             menu.addItem(i)
@@ -337,6 +373,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         } else {
             let i = NSMenuItem(title: "Install Do Not Disturb shortcuts…", action: #selector(installFocus), keyEquivalent: "")
             i.target = self
+            setup.addItem(i)
+        }
+        switch PrivacyDots.externalOverride() {
+        case .on:
+            let hidden = PrivacyDots.suppressed == true
+            let i = NSMenuItem(title: "Privacy dots on external full screen: " + (hidden ? "hidden" : "shown"),
+                               action: nil, keyEquivalent: "")
+            i.isEnabled = false
+            setup.addItem(i)
+            let p = NSMenuItem(title: "Privacy Indicator Settings…", action: #selector(openPrivacyIndicators), keyEquivalent: "")
+            p.target = self
+            setup.addItem(p)
+        case .off:
+            let i = NSMenuItem(title: "Hide Privacy Dots on External Displays…", action: #selector(explainPrivacyDots), keyEquivalent: "")
+            i.target = self
+            setup.addItem(i)
+        case .unavailable:
+            let i = NSMenuItem(title: "Privacy dots: hiding needs macOS 14.4", action: nil, keyEquivalent: "")
+            i.isEnabled = false
             setup.addItem(i)
         }
         let login = NSMenuItem(title: "Launch at Login", action: #selector(toggleLogin), keyEquivalent: "")

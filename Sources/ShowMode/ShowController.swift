@@ -70,6 +70,7 @@ final class ShowController {
         if s.isOn(.nightShift) { ColourShift.engageNightShift() }
         if s.isOn(.trueTone) { ColourShift.engageTrueTone() }
         if s.isOn(.autoAppearance) { ColourShift.engageAppearance() }
+        if s.isOn(.privacyDots) { PrivacyDots.engage() }
 
         // Before the fence, so it fences the arrangement the show will actually run on.
         if s.isOn(.displayLayout) {
@@ -114,6 +115,7 @@ final class ShowController {
         ColourShift.restoreNightShift()
         ColourShift.restoreTrueTone()
         ColourShift.restoreAppearance()
+        PrivacyDots.restore()
         ColourShift.relaunchColourApps()
 
         Journal.shared.clear()

@@ -32,6 +32,11 @@ setting back exactly as it was.
 > screen cannot be blocked; and pinning the light/dark appearance, which System Settings
 > showed switching from Auto to the showing appearance and back, including after a crash.
 >
+> **Privacy dots (coming in v0.4.0):** finding a dot and the screen it is on, naming the app using the
+> microphone, telling screen recording apart, and reading whether the Recovery step has been
+> done were all checked on macOS 26.4.1. **Not checked:** actually hiding the dots, which needs
+> the Recovery step on a Mac with an external display, and noticing the camera in use.
+>
 > **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). Try
@@ -90,6 +95,7 @@ the next start.
 | Quit colour-shift apps | Quits f.lux, Shifty and Lunar if they are running, and opens them again afterwards. |
 | Fence cursor off show screens | See [Keeping the cursor off the show screens](#keeping-the-cursor-off-the-show-screens). |
 | Lock main display & keep new screens extended | See [Keeping the display arrangement](#keeping-the-display-arrangement). |
+| Hide privacy dots on full-screen external displays | Needs a one-time step in Recovery first. See [Privacy dots](#privacy-dots). |
 
 Starting show mode restarts the Dock once, which makes the Dock and the menu bar flicker
 for a moment. Do it before doors, not during a cue.
@@ -169,6 +175,36 @@ Disturb and says so.
 The shortcuts switch the built-in **Do Not Disturb** Focus, not any custom Focus you have
 made. Whatever that Focus allows through — people or apps you have allowed in System Settings
 → Focus → Do Not Disturb — still gets through, so check its allow list on the show machine.
+
+## Privacy dots
+
+macOS draws a coloured dot while an app uses the microphone (orange), the camera (green) or
+records the screen (purple). No app can turn these off. Apple's own setting (macOS 14.4 or
+later) leaves the microphone and camera dots off an **external display showing a full-screen
+app**, and it has limits:
+
+- the **main display always keeps its dots**, so make the operator's screen the main display
+  (**Main Display** in the menu);
+- the **purple screen-recording dot cannot be hidden** anywhere;
+- it needs a **one-time step in Recovery**, which no app can do for you.
+
+**The one-time step.** Start up in Recovery (on Apple silicon, shut down, then hold the power
+button until *Loading startup options* appears; on Intel, hold ⌘R at startup), choose
+**Utilities → Terminal** and run:
+
+```bash
+system-override suppress-sw-camera-indication-on-external-displays=on
+```
+
+Then restart. **Setup** in Show Mode's menu shows whether this has been done. After that, with
+**Hide privacy dots on full-screen external displays** ticked, show mode turns the dots off on
+external displays at the start of each show and back on at the end (the same switch as
+**Privacy Indicators** under System Settings → Privacy & Security → Microphone). To undo the
+step, run the same command with `=off` in Recovery.
+
+Whether or not you have done it, show mode tells you at the start of a show if a dot is
+showing, on which screen and why: the app using the microphone, the camera, or (when it is
+neither) screen recording. The same line stays in the menu, marked ⚠︎, while the dot shows.
 
 ## Driving it from somewhere else
 
