@@ -8,10 +8,11 @@ every setting back exactly as it was.
 
 **⌃⌥⌘S** starts/ends show mode · **⌃⌥⌘F** pauses the cursor fence (to reach a show screen deliberately)
 
-> **Beta.** The power, screen-saver, hot-corner, Mission Control, True Tone and Night Shift
-> guards and every restore path were run end to end on macOS 26.4, and the cursor fence (with
-> and without Accessibility), the display lock, Do Not Disturb and appearance pinning on a
-> real two-screen setup. Still beta — try it on the show machine first. Full details in the [user guide](docs/USER-GUIDE.md).
+> **Field proven** — run on real events, not just on the bench. The power, screen-saver,
+> hot-corner, Mission Control, True Tone and Night Shift guards and every restore path were
+> also run end to end on macOS 26.4, and the cursor fence (with and without Accessibility), the
+> display lock, Do Not Disturb and appearance pinning on a real two-screen setup. Still
+> unchecked: the display lock with AirPlay, Sidecar or DisplayLink screens. Full details in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 

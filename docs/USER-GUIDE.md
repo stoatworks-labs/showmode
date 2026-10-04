@@ -7,7 +7,9 @@ notification banners — stops the colour of the picture drifting with the time 
 keeps the mouse cursor off the screens the audience is looking at. A second click puts every
 setting back exactly as it was.
 
-> **Before you rely on this:** the power, screen-saver, hot-corner, Mission Control, True
+> **Field proven:** Show Mode has been run on real events, not just on the bench.
+>
+> **Checked on the bench:** the power, screen-saver, hot-corner, Mission Control, True
 > Tone and Night Shift guards were run end to end on a MacBook Pro running macOS 26.4, and
 > restoring was checked three ways: ending show mode, killing the app outright and
 > relaunching it, and stopping it with SIGTERM. Every setting came back. The wallpaper
@@ -39,9 +41,9 @@ setting back exactly as it was.
 >
 > **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
-> pinned appearance (the pin itself was checked, but not an evening switch it holds off). Try
-> it on the show machine, with the show screens connected, before a show depends on it.
-> **Released at v0.3.1 (beta).**
+> pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
+> your show uses one of those screens, try it with them connected before the show.
+> **Released at v0.3.1 (field proven).**
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
 
