@@ -79,6 +79,8 @@ display is journalled and restored. Activity goes to `~/Library/Logs/ShowMode.lo
 
 ## Privacy dots
 
+> **Coming in v0.4.0.** This is on `main` but not in v0.3.1, the current release.
+
 No app can hide the microphone/camera/screen-recording dots. Show Mode reports them instead:
 WindowServer draws each dot as a window named `StatusIndicator` (readable without Screen
 Recording access), which gives the screens showing one; CoreAudio process objects

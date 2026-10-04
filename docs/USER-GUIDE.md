@@ -97,7 +97,7 @@ the next start.
 | Quit colour-shift apps | Quits f.lux, Shifty and Lunar if they are running, and opens them again afterwards. |
 | Fence cursor off show screens | See [Keeping the cursor off the show screens](#keeping-the-cursor-off-the-show-screens). |
 | Lock main display & keep new screens extended | See [Keeping the display arrangement](#keeping-the-display-arrangement). |
-| Hide privacy dots on full-screen external displays | Needs a one-time step in Recovery first. See [Privacy dots](#privacy-dots). |
+| Hide privacy dots on full-screen external displays | *Coming in v0.4.0.* Needs a one-time step in Recovery first. See [Privacy dots](#privacy-dots). |
 
 Starting show mode restarts the Dock once, which makes the Dock and the menu bar flicker
 for a moment. Do it before doors, not during a cue.
@@ -179,6 +179,8 @@ made. Whatever that Focus allows through — people or apps you have allowed in 
 → Focus → Do Not Disturb — still gets through, so check its allow list on the show machine.
 
 ## Privacy dots
+
+> **Coming in v0.4.0.** v0.3.1, the current release, does not have this guard yet.
 
 macOS draws a coloured dot while an app uses the microphone (orange), the camera (green) or
 records the screen (purple). No app can turn these off. Apple's own setting (macOS 14.4 or
