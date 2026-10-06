@@ -12,7 +12,9 @@ every setting back exactly as it was.
 > hot-corner, Mission Control, True Tone and Night Shift guards and every restore path were
 > also run end to end on macOS 26.4, and the cursor fence (with and without Accessibility), the
 > display lock, Do Not Disturb and appearance pinning on a real two-screen setup. Still
-> unchecked: the display lock with AirPlay, Sidecar or DisplayLink screens. Full details in the [user guide](docs/USER-GUIDE.md).
+> unchecked: the display lock with AirPlay, Sidecar or DisplayLink screens. The two guards new
+> in v0.4.0, privacy dots and swipe between Spaces, have not yet been run on a show. Full
+> details in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 
@@ -45,7 +47,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Screen saver | `com.apple.screensaver idleTime 0` (current host) |
 | Hot corners | all four `wvous-*` set to no-op, Dock restarted |
 | Mission Control / App Exposé / gestures | `mcx-expose-disabled`, the four Dock gesture keys, Dock restarted |
-| Swipe between Spaces *(coming in v0.4.0)* | `Trackpad{Three,Four}FingerHorizSwipeGesture` and the Magic Mouse's `MouseTwoFingerHorizSwipeGesture`, only where set to swipe between full-screen apps (2 → 0), then `activateSettings -u` so the trackpad driver rereads them; swipe between pages is left alone |
+| Swipe between Spaces | `Trackpad{Three,Four}FingerHorizSwipeGesture` and the Magic Mouse's `MouseTwoFingerHorizSwipeGesture`, only where set to swipe between full-screen apps (2 → 0), then `activateSettings -u` so the trackpad driver rereads them; swipe between pages is left alone |
 | Click wallpaper to show desktop | `com.apple.WindowManager EnableStandardClickToShowDesktop` |
 | Desktop wallpaper | black on every screen (and any plugged in mid-show); the WallpaperAgent store is copied and put back, so dynamic/aerial wallpapers and every Space return exactly |
 | Notifications | Do Not Disturb via two generated Shortcuts (see below) |
@@ -79,8 +81,6 @@ start are left alone. Four corrections in twenty seconds and it stops. The previ
 display is journalled and restored. Activity goes to `~/Library/Logs/ShowMode.log`.
 
 ## Privacy dots
-
-> **Coming in v0.4.0.** This is on `main` but not in v0.3.1, the current release.
 
 No app can hide the microphone/camera/screen-recording dots. Show Mode reports them instead:
 WindowServer draws each dot as a window named `StatusIndicator` (readable without Screen

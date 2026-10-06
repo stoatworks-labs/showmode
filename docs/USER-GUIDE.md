@@ -34,12 +34,12 @@ setting back exactly as it was.
 > screen cannot be blocked; and pinning the light/dark appearance, which System Settings
 > showed switching from Auto to the showing appearance and back, including after a crash.
 >
-> **Privacy dots (coming in v0.4.0):** finding a dot and the screen it is on, naming the app using the
+> **Privacy dots (v0.4.0):** finding a dot and the screen it is on, naming the app using the
 > microphone, telling screen recording apart, and reading whether the Recovery step has been
 > done were all checked on macOS 26.4.1. **Not checked:** actually hiding the dots, which needs
 > the Recovery step on a Mac with an external display, and noticing the camera in use.
 >
-> **Swipe between Spaces (coming in v0.4.0, checked 2026-10-06 on macOS 26.4.1):** on a
+> **Swipe between Spaces (v0.4.0, checked 2026-10-06 on macOS 26.4.1):** on a
 > MacBook Pro's built-in trackpad, three- and four-finger sideways swipes stopped switching
 > desktops during the show. The swipe settings came back when the show ended and on the next
 > launch after the app was killed mid-show, and a three-finger swipe set to *Swipe between
@@ -50,7 +50,8 @@ setting back exactly as it was.
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
 > your show uses one of those screens, try it with them connected before the show.
-> **Released at v0.3.1 (field proven).**
+> **Released at v0.4.0.** v0.3.1 is field proven; the two guards new in v0.4.0, the
+> privacy dots and swipe between Spaces, have not yet been run on a show.
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
 
@@ -95,7 +96,7 @@ the next start.
 | Disable screen saver | Sets the idle time to never. |
 | Disable hot corners | Sets all four corners to do nothing, and restarts the Dock so it takes effect. |
 | Disable Mission Control, Exposé & gestures | Turns off Mission Control and App Exposé, including their keys, and the swipe and pinch gestures for Mission Control, App Exposé, Show Desktop and Launchpad. Restarts the Dock. |
-| Disable swipe between Spaces & full-screen apps | *Coming in v0.4.0.* Stops a sideways three- or four-finger swipe on the trackpad (two fingers on a Magic Mouse) sliding the show off to another desktop or full-screen app. A three-finger swipe set to *Swipe between pages* is left alone, since it only goes back and forward inside an app. Your swipe settings come back when the show ends. |
+| Disable swipe between Spaces & full-screen apps | Stops a sideways three- or four-finger swipe on the trackpad (two fingers on a Magic Mouse) sliding the show off to another desktop or full-screen app. A three-finger swipe set to *Swipe between pages* is left alone, since it only goes back and forward inside an app. Your swipe settings come back when the show ends. |
 | Disable click-wallpaper-to-show-desktop | Stops a stray click on the desktop sweeping every window aside. |
 | Black out desktop wallpaper | Paints the wallpaper black on every screen, including one plugged in mid-show, so an extended desktop never shows your wallpaper on the projector. The original comes back exactly, dynamic and aerial wallpapers and every Space included. |
 | Do Not Disturb | Turns on Do Not Disturb, so no notification banner lands on an output. See [Notifications](#notifications). |
@@ -105,7 +106,7 @@ the next start.
 | Quit colour-shift apps | Quits f.lux, Shifty and Lunar if they are running, and opens them again afterwards. |
 | Fence cursor off show screens | See [Keeping the cursor off the show screens](#keeping-the-cursor-off-the-show-screens). |
 | Lock main display & keep new screens extended | See [Keeping the display arrangement](#keeping-the-display-arrangement). |
-| Hide privacy dots on full-screen external displays | *Coming in v0.4.0.* Needs a one-time step in Recovery first. See [Privacy dots](#privacy-dots). |
+| Hide privacy dots on full-screen external displays | Needs a one-time step in Recovery first. See [Privacy dots](#privacy-dots). |
 
 Starting show mode restarts the Dock once, which makes the Dock and the menu bar flicker
 for a moment. Do it before doors, not during a cue.
@@ -187,8 +188,6 @@ made. Whatever that Focus allows through — people or apps you have allowed in 
 → Focus → Do Not Disturb — still gets through, so check its allow list on the show machine.
 
 ## Privacy dots
-
-> **Coming in v0.4.0.** v0.3.1, the current release, does not have this guard yet.
 
 macOS draws a coloured dot while an app uses the microphone (orange), the camera (green) or
 records the screen (purple). No app can turn these off. Apple's own setting (macOS 14.4 or
