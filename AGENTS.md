@@ -29,6 +29,11 @@ Invariants for anyone (human or agent) changing this repo.
 - **Appearance goes through SkyLight** (`SLSSetAppearanceThemeSwitchesAutomatically`). Writing
   `AppleInterfaceStyleSwitchesAutomatically` changes nothing live — System Settings kept
   showing Auto — so never go back to the preference-key approach.
+- **Trackpad and mouse gestures are read by the driver, not the Dock.** Writing
+  `TrackpadThreeFingerHorizSwipeGesture` and friends changes nothing live — the driver's
+  `HIDEventServiceProperties` (visible in `ioreg -l`) keep the old value until
+  `activateSettings -u` pushes the preferences to the HID event system. Check `ioreg`, not
+  `defaults`, when testing a gesture guard.
 - **Testing without Accessibility:** copy the built app, give it another bundle id, remove
   its URL types and ad-hoc sign it. It has no TCC grant, so the fence runs its fallback, and
   your own Security settings stay untouched. Drive it with a posted ⌃⌥⌘S.

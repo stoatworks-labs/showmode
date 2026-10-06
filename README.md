@@ -45,6 +45,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Screen saver | `com.apple.screensaver idleTime 0` (current host) |
 | Hot corners | all four `wvous-*` set to no-op, Dock restarted |
 | Mission Control / App Exposé / gestures | `mcx-expose-disabled`, the four Dock gesture keys, Dock restarted |
+| Swipe between Spaces *(coming in v0.4.0)* | `Trackpad{Three,Four}FingerHorizSwipeGesture` and the Magic Mouse's `MouseTwoFingerHorizSwipeGesture`, only where set to swipe between full-screen apps (2 → 0), then `activateSettings -u` so the trackpad driver rereads them; swipe between pages is left alone |
 | Click wallpaper to show desktop | `com.apple.WindowManager EnableStandardClickToShowDesktop` |
 | Desktop wallpaper | black on every screen (and any plugged in mid-show); the WallpaperAgent store is copied and put back, so dynamic/aerial wallpapers and every Space return exactly |
 | Notifications | Do Not Disturb via two generated Shortcuts (see below) |

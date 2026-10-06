@@ -39,6 +39,13 @@ setting back exactly as it was.
 > done were all checked on macOS 26.4.1. **Not checked:** actually hiding the dots, which needs
 > the Recovery step on a Mac with an external display, and noticing the camera in use.
 >
+> **Swipe between Spaces (coming in v0.4.0, checked 2026-10-06 on macOS 26.4.1):** on a
+> MacBook Pro's built-in trackpad, three- and four-finger sideways swipes stopped switching
+> desktops during the show. The swipe settings came back when the show ended and on the next
+> launch after the app was killed mid-show, and a three-finger swipe set to *Swipe between
+> pages* was left as it was. **Not checked:** a Magic Trackpad or Magic Mouse in hand (their
+> settings are switched off and back the same way).
+>
 > **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
@@ -88,6 +95,7 @@ the next start.
 | Disable screen saver | Sets the idle time to never. |
 | Disable hot corners | Sets all four corners to do nothing, and restarts the Dock so it takes effect. |
 | Disable Mission Control, Exposé & gestures | Turns off Mission Control and App Exposé, including their keys, and the swipe and pinch gestures for Mission Control, App Exposé, Show Desktop and Launchpad. Restarts the Dock. |
+| Disable swipe between Spaces & full-screen apps | *Coming in v0.4.0.* Stops a sideways three- or four-finger swipe on the trackpad (two fingers on a Magic Mouse) sliding the show off to another desktop or full-screen app. A three-finger swipe set to *Swipe between pages* is left alone, since it only goes back and forward inside an app. Your swipe settings come back when the show ends. |
 | Disable click-wallpaper-to-show-desktop | Stops a stray click on the desktop sweeping every window aside. |
 | Black out desktop wallpaper | Paints the wallpaper black on every screen, including one plugged in mid-show, so an extended desktop never shows your wallpaper on the projector. The original comes back exactly, dynamic and aerial wallpapers and every Space included. |
 | Do Not Disturb | Turns on Do Not Disturb, so no notification banner lands on an output. See [Notifications](#notifications). |

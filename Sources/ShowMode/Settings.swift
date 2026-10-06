@@ -9,6 +9,7 @@ enum Guard: String, CaseIterable {
     case screenSaver
     case hotCorners
     case missionControl
+    case spaceSwipe
     case clickToShowDesktop
     case wallpaper
     case notifications
@@ -28,6 +29,7 @@ enum Guard: String, CaseIterable {
         case .screenSaver: return "Disable screen saver"
         case .hotCorners: return "Disable hot corners"
         case .missionControl: return "Disable Mission Control, Exposé & gestures"
+        case .spaceSwipe: return "Disable swipe between Spaces & full-screen apps"
         case .clickToShowDesktop: return "Disable click-wallpaper-to-show-desktop"
         case .wallpaper: return "Black out desktop wallpaper"
         case .notifications: return "Do Not Disturb (notifications)"

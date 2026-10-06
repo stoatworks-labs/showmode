@@ -51,6 +51,10 @@ final class ShowController {
         }
         if dock { Shell.killall("Dock") }
 
+        if s.isOn(.spaceSwipe), !SpaceSwipe.engage() {
+            warnings.append("Swipe between Spaces is still on: the trackpad settings could not be applied")
+        }
+
         if s.isOn(.clickToShowDesktop),
            PrefKey(domain: "com.apple.WindowManager", key: "EnableStandardClickToShowDesktop").override(false) {
             Shell.killall("WindowManager")
@@ -108,6 +112,7 @@ final class ShowController {
         let domains = Prefs.restoreAll()
         if domains.contains("com.apple.dock") { Shell.killall("Dock") }
         if domains.contains("com.apple.WindowManager") { Shell.killall("WindowManager") }
+        if !domains.isDisjoint(with: SpaceSwipe.domains) { SpaceSwipe.activate() }
 
         DisplayLayout.restore()
         Wallpaper.restore()
