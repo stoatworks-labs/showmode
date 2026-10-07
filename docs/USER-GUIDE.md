@@ -75,7 +75,8 @@ the menu bar as a pair of theatre masks and has no Dock icon.
 ## Starting and ending a show
 
 Click the masks and choose **Start Show Mode**, or press **⌃⌥⌘S** anywhere. The masks
-turn solid red while show mode is on. **End Show Mode** (or ⌃⌥⌘S again) puts everything
+turn solid while show mode is on, drawn in the menu bar's own colour, so they show up white
+over the blacked-out wallpaper. **End Show Mode** (or ⌃⌥⌘S again) puts everything
 back.
 
 If something could not be applied — Do Not Disturb before its shortcuts are installed, a
