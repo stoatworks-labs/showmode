@@ -50,8 +50,10 @@ setting back exactly as it was.
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
 > your show uses one of those screens, try it with them connected before the show.
-> **Released at v0.4.0.** v0.3.1 is field proven; the two guards new in v0.4.0, the
-> privacy dots and swipe between Spaces, have not yet been run on a show.
+> **Released at v0.4.1.** v0.3.1 is field proven; the two guards new in v0.4.0, the
+> privacy dots and swipe between Spaces, have not yet been run on a show. v0.4.1 changes
+> only the menu-bar masks, which now turn white over the black wallpaper during a show
+> instead of red. **Not yet checked:** the white masks on a real menu bar.
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
 
