@@ -46,6 +46,12 @@ setting back exactly as it was.
 > pages* was left as it was. **Not checked:** a Magic Trackpad or Magic Mouse in hand (their
 > settings are switched off and back the same way).
 >
+> **System sounds (coming in v0.5.0):** on macOS 26.4.1, the guard read the alert volume and
+> the interface-sound switch the way System Settings showed them, and on a Mac with all three
+> sounds already off it changed nothing. **Not checked:** silencing sounds that are on and
+> putting them back — an alert beep, a screenshot and a volume key, listened for during a show,
+> after it ends and after the app is killed mid-show.
+>
 > **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
@@ -100,6 +106,7 @@ the next start.
 | Disable click-wallpaper-to-show-desktop | Stops a stray click on the desktop sweeping every window aside. |
 | Black out desktop wallpaper | Paints the wallpaper black on every screen, including one plugged in mid-show, so an extended desktop never shows your wallpaper on the projector. The original comes back exactly, dynamic and aerial wallpapers and every Space included. |
 | Do Not Disturb | Turns on Do Not Disturb, so no notification banner lands on an output. See [Notifications](#notifications). |
+| Disable system sounds (alerts & UI effects) | *Coming in v0.5.0.* Silences the alert beep, interface sound effects such as emptying the Trash or taking a screenshot, and the pop a volume key plays, so none of them goes out through the show's audio. Sound from apps, the show included, is left alone. Your alert volume and sound settings come back when the show ends. |
 | Disable Night Shift | Turns Night Shift off **and** clears its schedule, so it cannot come back on at sunset mid-show. |
 | Disable True Tone | Stops the built-in display re-tinting itself to the room's light. |
 | Pin light/dark appearance | If the appearance is set to Auto, switches it to whichever of Light or Dark is showing now, so it cannot flip at sunset mid-show. Auto comes back when the show ends. |

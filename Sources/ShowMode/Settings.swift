@@ -13,6 +13,7 @@ enum Guard: String, CaseIterable {
     case clickToShowDesktop
     case wallpaper
     case notifications
+    case systemSounds
     case nightShift
     case trueTone
     case autoAppearance
@@ -33,6 +34,7 @@ enum Guard: String, CaseIterable {
         case .clickToShowDesktop: return "Disable click-wallpaper-to-show-desktop"
         case .wallpaper: return "Black out desktop wallpaper"
         case .notifications: return "Do Not Disturb (notifications)"
+        case .systemSounds: return "Disable system sounds (alerts & UI effects)"
         case .nightShift: return "Disable Night Shift"
         case .trueTone: return "Disable True Tone"
         case .autoAppearance: return "Pin light/dark appearance"

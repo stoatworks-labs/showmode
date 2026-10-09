@@ -34,6 +34,11 @@ Invariants for anyone (human or agent) changing this repo.
   `HIDEventServiceProperties` (visible in `ioreg -l`) keep the old value until
   `activateSettings -u` pushes the preferences to the HID event system. Check `ioreg`, not
   `defaults`, when testing a gesture guard.
+- **System sounds go through AudioServices**, as System Settings' Sound pane does (read from
+  its disassembly on macOS 26.4.1): `AudioServicesSetProperty` with `ssvl` (alert volume, a
+  raw Float32; the slider shows log(v) + 1) and `uion` (interface sound effects), then the
+  pane's distributed notifications. The `com.apple.sound.*` preference keys were never tried as
+  a way in — check by ear before switching to them.
 - **Testing without Accessibility:** copy the built app, give it another bundle id, remove
   its URL types and ad-hoc sign it. It has no TCC grant, so the fence runs its fallback, and
   your own Security settings stay untouched. Drive it with a posted ⌃⌥⌘S.

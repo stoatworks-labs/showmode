@@ -10,6 +10,7 @@ let package = Package(
             path: "Sources/ShowMode",
             linkerSettings: [
                 .linkedFramework("AppKit"),
+                .linkedFramework("AudioToolbox"),
                 .linkedFramework("Carbon"),
                 .linkedFramework("CoreAudio"),
                 .linkedFramework("CoreMediaIO"),

@@ -70,6 +70,10 @@ final class ShowController {
             }
         }
 
+        if s.isOn(.systemSounds), !SystemSounds.engage() {
+            warnings.append("System sounds may still play: macOS did not take the change")
+        }
+
         if s.isOn(.colourApps) { ColourShift.quitColourApps() }
         if s.isOn(.nightShift) { ColourShift.engageNightShift() }
         if s.isOn(.trueTone) { ColourShift.engageTrueTone() }
@@ -117,6 +121,7 @@ final class ShowController {
         DisplayLayout.restore()
         Wallpaper.restore()
         Focus.restore()
+        SystemSounds.restore()
         ColourShift.restoreNightShift()
         ColourShift.restoreTrueTone()
         ColourShift.restoreAppearance()
