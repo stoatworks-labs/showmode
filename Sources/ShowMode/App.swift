@@ -421,9 +421,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         else if fencePaused { name = "theatermasks.circle" }
         else { name = "theatermasks.fill" }
         let img = NSImage(systemSymbolName: name, accessibilityDescription: "Show Mode")
+        // No tint: a template image draws in the menu bar's own colour, which is white once the
+        // wallpaper is blacked out. A red tint all but vanished against the black. The solid
+        // masks are what say the show is on.
         img?.isTemplate = true
         item.button?.image = img
-        item.button?.contentTintColor = show.engaged ? .systemRed : nil
+        item.button?.contentTintColor = nil
         item.button?.toolTip = show.engaged ? "Show Mode is ON (⌃⌥⌘S to end)" : "Show Mode is off (⌃⌥⌘S to start)"
     }
 
