@@ -51,7 +51,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Click wallpaper to show desktop | `com.apple.WindowManager EnableStandardClickToShowDesktop` |
 | Desktop wallpaper | black on every screen (and any plugged in mid-show); the WallpaperAgent store is copied and put back, so dynamic/aerial wallpapers and every Space return exactly |
 | Notifications | Do Not Disturb via two generated Shortcuts (see below) |
-| System sounds *(coming in v0.5.0)* | alert volume and "Play user interface sound effects" to 0 through AudioServices (`ssvl`, `uion`), the calls System Settings' Sound pane makes, and `com.apple.sound.beep.feedback` off; only where on, restored after. App audio is untouched |
+| System sounds *(coming in v0.5.0)* | alert volume and "Play user interface sound effects" to 0 through AudioServices (`ssvl`, `uion`), the calls System Settings' Sound pane makes, and `com.apple.sound.beep.feedback` to 0 (an integer: loginwindow plays the pop and reads it as one); only where on, restored after. Output volume, mute and app audio are untouched |
 | Night Shift | CoreBrightness `CBBlueLightClient` — disabled *and* its schedule cleared |
 | True Tone | CoreBrightness `CBTrueToneClient` |
 | Auto light/dark appearance | SkyLight `SLSSetAppearanceThemeSwitchesAutomatically(false)` pins the showing appearance, the same call System Settings makes (the preference key alone changes nothing live); restored after |

@@ -7,14 +7,17 @@ import Foundation
 /// properties with no public name and the third through a preference key, then posts a
 /// distributed notification so anything showing them catches up; Show Mode makes the same
 /// calls. AudioServices answers a property it does not know with an error, so a macOS that
-/// drops one degrades to a warning rather than a crash. Sound from apps is left alone.
+/// drops one degrades to a warning rather than a crash. The output's volume and mute, and
+/// sound from apps, are never touched: the show keeps playing.
 enum SystemSounds {
     /// Alert volume, a Float32 where 0 is silent. The pane's slider shows log(v) + 1 of it;
     /// the raw value is what is journaled, so it comes back exactly.
     private static let alertVolume = fourCC("ssvl")
     /// "Play user interface sound effects", a UInt32.
     private static let uiSounds = fourCC("uion")
-    /// "Play feedback when volume is changed".
+    /// "Play feedback when volume is changed". loginwindow plays the pop and reads this as a
+    /// number — a boolean `true` there plays nothing — so it is written as the SInt32 the pane
+    /// writes.
     private static let feedback = PrefKey(domain: "NSGlobalDomain", key: "com.apple.sound.beep.feedback")
 
     private static let alertVolumeChanged = "com.apple.sound.alertVolumeChanged"
@@ -43,7 +46,7 @@ enum SystemSounds {
         } else { ok = false }
 
         if (feedback.read() as? NSNumber)?.boolValue == true {
-            changed = feedback.override(false) || changed
+            changed = feedback.override(Int32(0)) || changed
         }
         if changed { post(settingsChanged) }
         return ok

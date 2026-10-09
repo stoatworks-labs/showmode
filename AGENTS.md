@@ -38,7 +38,15 @@ Invariants for anyone (human or agent) changing this repo.
   its disassembly on macOS 26.4.1): `AudioServicesSetProperty` with `ssvl` (alert volume, a
   raw Float32; the slider shows log(v) + 1) and `uion` (interface sound effects), then the
   pane's distributed notifications. The `com.apple.sound.*` preference keys were never tried as
-  a way in — check by ear before switching to them.
+  a way in. Volume feedback is the exception: it is only a preference key, and loginwindow
+  (BezelServices) plays the pop. It reads `com.apple.sound.beep.feedback` as a number, so a
+  boolean `true` plays nothing. Write the SInt32 the pane writes.
+- **Testing sound guards without ears:** watch CoreAudio's per-process
+  `kAudioProcessPropertyIsRunningOutput` while triggering the sound. A sound marked with
+  `kAudioServicesPropertyIsUISound` and the volume-key pop start no output when switched off.
+  The alert beep is different: systemsoundserverd runs the output even at alert volume 0, so
+  this cannot tell a silent beep from an audible one. A posted Shift+volume key inverts the
+  feedback setting, which shows whether loginwindow saw a change.
 - **Testing without Accessibility:** copy the built app, give it another bundle id, remove
   its URL types and ad-hoc sign it. It has no TCC grant, so the fence runs its fallback, and
   your own Security settings stay untouched. Drive it with a posted ⌃⌥⌘S.
