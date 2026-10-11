@@ -124,22 +124,5 @@ enum ColourShift {
 
     // MARK: Third-party colour apps
 
-    static func quitColourApps() {
-        var quit = Journal.shared["quitApps"] as? [String] ?? []
-        for id in Settings.shared.colourApps {
-            for app in NSRunningApplication.runningApplications(withBundleIdentifier: id) {
-                if let path = app.bundleURL?.path, !quit.contains(path) { quit.append(path) }
-                app.terminate()
-            }
-        }
-        if !quit.isEmpty { Journal.shared["quitApps"] = quit }
-    }
-
-    static func relaunchColourApps() {
-        for path in Journal.shared["quitApps"] as? [String] ?? [] {
-            let cfg = NSWorkspace.OpenConfiguration()
-            cfg.activates = false
-            NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: path), configuration: cfg)
-        }
-    }
+    static func quitColourApps() { QuitApps.quit(Settings.shared.colourApps) }
 }

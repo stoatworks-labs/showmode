@@ -33,7 +33,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
-  <key>NSAppleEventsUsageDescription</key><string>Show Mode asks for your password to change power settings (Low Power Mode, lid-close sleep).</string>
+  <key>NSAppleEventsUsageDescription</key><string>Show Mode asks for your password to change system settings for the show (power, Time Machine, Spotlight, updates) and to put them back.</string>
   <key>CFBundleURLTypes</key>
   <array><dict>
     <key>CFBundleURLName</key><string>com.stoatworks.showmode</string>

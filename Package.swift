@@ -15,6 +15,7 @@ let package = Package(
                 .linkedFramework("CoreAudio"),
                 .linkedFramework("CoreMediaIO"),
                 .linkedFramework("IOKit"),
+                .linkedFramework("SystemConfiguration"),
             ]
         )
     ]

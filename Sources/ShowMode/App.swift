@@ -40,6 +40,20 @@ struct ShowModeMain {
         for d in DisplayInfo.all() {
             print("Display:         \(d.name) key=\(d.key) bounds=\(d.bounds)\(d.isMain ? " main" : "")")
         }
+        print("Time Machine:    auto=\(TimeMachine.autoBackup.map { "\($0)" } ?? "unreadable") running=\(TimeMachine.backingUp)")
+        print("Updates managed: \(SoftwareUpdate.managed)")
+        print("AWDL up:         \(AWDL.up.map { "\($0)" } ?? "no interface")")
+        print("⌘Space keys on:  \(Interruptions.spotlightKeysOn.map { "\($0)" } ?? "unavailable")")
+        print("Crash reports:   \((Interruptions.crashNotifications.read() as? Bool) == true ? "notifications" : "dialogs")")
+        print("Stage Manager:   \((Interruptions.stageManager.read() as? Bool) == true)")
+        print("Game Mode:       \(GameMode.tool.flatMap(GameMode.policy) ?? "no Xcode")")
+        print("Sparkle apps:    \(AppUpdaters.sparkleApps().map(\.name))")
+        print("Syncthing:       \(Syncthing.api().map { $0.base.absoluteString } ?? "not set up")")
+        for (name, list) in [("Media analysis", Paused.mediaAnalysis), ("Spotlight", Paused.spotlight)] {
+            let p = Sweeper.processes(list)
+            print("\((name + ":").padding(toLength: 17, withPad: " ", startingAt: 0))\(p.count) running, \(p.filter(\.stopped).count) paused")
+        }
+        for c in Preflight.items() { print("Check:           \(c.text)") }
     }
 }
 
@@ -64,7 +78,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
 
         if show.recoverIfNeeded() {
-            notify("Show Mode restored settings left over from a session that did not end cleanly.")
+            notify(show.warnings.isEmpty
+                   ? "Show Mode restored settings left over from a session that did not end cleanly."
+                   : show.warnings.joined(separator: "\n"))
         }
 
         Hotkeys.shared.register(keyCode: 1) { [weak self] in self?.toggleShow() }   // ⌃⌥⌘S
@@ -120,9 +136,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func toggleShow() {
         fencePaused = false
         show.toggle()
-        guard show.engaged else { return }
-        let notes = show.warnings + [PrivacyDots.problem()].compactMap { $0 }
+        guard show.engaged else {
+            if !show.warnings.isEmpty { notify(show.warnings.joined(separator: "\n")) }
+            return
+        }
+        let notes = show.warnings + [PrivacyDots.problem()].compactMap { $0 } + Preflight.items().map(\.text)
         if !notes.isEmpty { notify(notes.joined(separator: "\n")) }
+    }
+
+    /// Runs the restore again for whatever a cancelled password prompt left changed.
+    @objc private func finishRestoring() {
+        show.restore()
+        if !show.warnings.isEmpty { notify(show.warnings.joined(separator: "\n")) }
     }
 
     @objc private func toggleFence() {
@@ -230,6 +255,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if a.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(PrivacyDots.appleGuide) }
     }
 
+    @objc private func openFullDiskAccess() {
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!)
+    }
+
     @objc private func openPrivacyIndicators() {
         NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
     }
@@ -256,11 +285,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let toggle = add(menu, show.engaged ? "End Show Mode" : "Start Show Mode", #selector(toggleShow))
         toggle.keyEquivalent = "s"
         toggle.keyEquivalentModifierMask = [.control, .option, .command]
-        for w in show.warnings + [show.layout.problem, PrivacyDots.problem()].compactMap({ $0 }) {
+        // Only after a restore that could not finish: a standalone wallpaper blackout keeps a
+        // journal too.
+        if !show.engaged && Journal.shared.exists && !show.warnings.isEmpty {
+            add(menu, "Finish Restoring", #selector(finishRestoring))
+        }
+        let checks = Preflight.items()
+        let live = show.engaged ? checks.filter(\.live).map(\.text) : []
+        for w in show.warnings + [show.layout.problem, PrivacyDots.problem()].compactMap({ $0 }) + live {
             let i = NSMenuItem(title: "⚠︎ " + w, action: nil, keyEquivalent: "")
             i.isEnabled = false
             menu.addItem(i)
         }
+        let checkMenu = NSMenu()
+        for c in checks {
+            let i = NSMenuItem(title: "⚠︎ " + c.text, action: nil, keyEquivalent: "")
+            i.isEnabled = false
+            checkMenu.addItem(i)
+        }
+        if checks.isEmpty {
+            let i = NSMenuItem(title: "Nothing to look at", action: nil, keyEquivalent: "")
+            i.isEnabled = false
+            checkMenu.addItem(i)
+        }
+        checkMenu.addItem(.separator())
+        for line in ["Before doors: allow any “find devices on your local network” prompt",
+                     "(NDI and Dante find nothing until it is allowed), and plug in",
+                     "every accessory so “Allow accessory to connect?” cannot appear."] {
+            let i = NSMenuItem(title: line, action: nil, keyEquivalent: "")
+            i.isEnabled = false
+            checkMenu.addItem(i)
+        }
+        let ci = NSMenuItem(title: checks.isEmpty ? "Pre-show Checks" : "Pre-show Checks (\(checks.count))",
+                            action: nil, keyEquivalent: "")
+        ci.submenu = checkMenu
+        menu.addItem(ci)
 
         add(menu, Wallpaper.blackedOut ? "Restore Wallpaper" : "Black Out Wallpaper", #selector(toggleWallpaper))
 
@@ -338,12 +397,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         menu.addItem(.separator())
         let guards = NSMenu()
-        for g in Guard.allCases {
-            let i = NSMenuItem(title: g.title, action: #selector(toggleGuard(_:)), keyEquivalent: "")
-            i.target = self
-            i.representedObject = g
-            i.state = s.isOn(g) ? .on : .off
-            guards.addItem(i)
+        for (n, section) in Guard.sections.enumerated() {
+            if n > 0 { guards.addItem(.separator()) }
+            let h = NSMenuItem(title: section.title, action: nil, keyEquivalent: "")
+            h.isEnabled = false
+            guards.addItem(h)
+            for g in section.guards {
+                let i = NSMenuItem(title: g.title, action: #selector(toggleGuard(_:)), keyEquivalent: "")
+                i.target = self
+                i.representedObject = g
+                i.state = s.isOn(g) ? .on : .off
+                i.indentationLevel = 1
+                guards.addItem(i)
+            }
         }
         if show.engaged {
             guards.addItem(.separator())
@@ -392,6 +458,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case .unavailable:
             let i = NSMenuItem(title: "Privacy dots: hiding needs macOS 14.4", action: nil, keyEquivalent: "")
             i.isEnabled = false
+            setup.addItem(i)
+        }
+        if s.isOn(.timeMachine) {
+            let i = NSMenuItem(title: "Full Disk Access (to pause Time Machine)…", action: #selector(openFullDiskAccess),
+                               keyEquivalent: "")
+            i.target = self
             setup.addItem(i)
         }
         let login = NSMenuItem(title: "Launch at Login", action: #selector(toggleLogin), keyEquivalent: "")

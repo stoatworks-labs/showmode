@@ -25,6 +25,32 @@ final class SleepAssertion {
     }
 }
 
+/// Experimental. Tells macOS every four minutes that someone is using the Mac, as a key press
+/// would, so an untouched show machine is not taken for idle: idle is when macOS schedules its
+/// own maintenance. The display assertion alone leaves the HID idle timer running out after
+/// five minutes. Nothing outlives the app, so there is nothing to journal.
+final class UserActivity {
+    private var timer: Timer?
+    private var id: IOPMAssertionID = 0
+
+    func start() {
+        guard timer == nil else { return }
+        declare()
+        timer = Timer.scheduledTimer(withTimeInterval: 240, repeats: true) { [weak self] _ in self?.declare() }
+    }
+
+    func stop() {
+        timer?.invalidate()
+        timer = nil
+        if id != 0 { IOPMAssertionRelease(id); id = 0 }
+    }
+
+    /// Passing the same id back renews the declaration rather than adding another.
+    private func declare() {
+        IOPMAssertionDeclareUserActivity("Show Mode" as CFString, kIOPMUserActiveLocal, &id)
+    }
+}
+
 /// Low Power Mode and lid-close sleep live in pmset and need root to change.
 enum PMSet {
     /// Per power source ("-b" battery, "-c" AC, "-u" UPS) → (key, value), from `pmset -g custom`.
@@ -52,33 +78,38 @@ enum PMSet {
             .contains { $0.trimmingCharacters(in: .whitespaces).hasPrefix("SleepDisabled") && $0.hasSuffix("1") }
     }
 
-    /// Commands to turn Low Power Mode off, journaling what each source had.
-    static func engageLowPower() -> [String] {
+    /// Turns Low Power Mode off, journaling what each source had.
+    static func engageLowPower() -> AdminStep? {
         var cmds: [String] = []
-        var journaled: [String: [String: Any]] = [:]
+        // An entry left by a restore that never finished already holds those sources' original
+        // values; only sources it lacks are added.
+        var journaled = Journal.shared["lowPower"] as? [String: [String: Any]] ?? [:]
         for (flag, cur) in lowPowerBySource() where cur.value == 1 {
-            journaled[flag] = ["key": cur.key, "value": cur.value]
+            if journaled[flag] == nil { journaled[flag] = ["key": cur.key, "value": cur.value] }
             cmds.append("/usr/bin/pmset \(flag) \(cur.key) 0")
         }
-        if !journaled.isEmpty { Journal.shared["lowPower"] = journaled }
-        return cmds
+        guard !cmds.isEmpty else { return nil }
+        Journal.shared["lowPower"] = journaled
+        return AdminStep(label: "Low Power Mode", journalKeys: ["lowPower"], commands: cmds)
     }
 
-    static func restoreLowPower() -> [String] {
-        guard let j = Journal.shared["lowPower"] as? [String: [String: Any]] else { return [] }
-        return j.compactMap { flag, e in
+    static func restoreLowPower() -> AdminStep? {
+        guard let j = Journal.shared["lowPower"] as? [String: [String: Any]] else { return nil }
+        let cmds = j.compactMap { flag, e -> String? in
             guard let k = e["key"] as? String, let v = e["value"] as? Int else { return nil }
             return "/usr/bin/pmset \(flag) \(k) \(v)"
         }
+        return AdminStep(label: "Low Power Mode", journalKeys: ["lowPower"], commands: cmds)
     }
 
-    static func engageLidSleep() -> [String] {
-        guard !sleepDisabled else { return [] }
-        Journal.shared["lidSleep"] = true
-        return ["/usr/bin/pmset -a disablesleep 1"]
+    static func engageLidSleep() -> AdminStep? {
+        guard !sleepDisabled else { return nil }
+        if Journal.shared["lidSleep"] == nil { Journal.shared["lidSleep"] = true }
+        return AdminStep(label: "Lid-close sleep", journalKeys: ["lidSleep"], commands: ["/usr/bin/pmset -a disablesleep 1"])
     }
 
-    static func restoreLidSleep() -> [String] {
-        Journal.shared["lidSleep"] as? Bool == true ? ["/usr/bin/pmset -a disablesleep 0"] : []
+    static func restoreLidSleep() -> AdminStep? {
+        guard Journal.shared["lidSleep"] as? Bool == true else { return nil }
+        return AdminStep(label: "Lid-close sleep", journalKeys: ["lidSleep"], commands: ["/usr/bin/pmset -a disablesleep 0"])
     }
 }

@@ -8,12 +8,15 @@ final class Journal {
 
     private(set) var entries: [String: Any] = [:]
 
-    private var url: URL {
+    /// ~/Library/Application Support/ShowMode, created on first use.
+    static var directory: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("ShowMode", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("journal.plist")
+        return dir
     }
+
+    private var url: URL { Self.directory.appendingPathComponent("journal.plist") }
 
     var exists: Bool { FileManager.default.fileExists(atPath: url.path) }
 
@@ -43,6 +46,13 @@ final class Journal {
     func clear() {
         entries = [:]
         try? FileManager.default.removeItem(at: url)
+    }
+
+    /// After a restore: keeps only the entries whose undo needs another try (a cancelled
+    /// password prompt), so the next End or launch retries them. With none, removes the journal.
+    func retain(_ keys: Set<String>) {
+        entries = entries.filter { keys.contains($0.key) }
+        if entries.isEmpty { clear() } else { save() }
     }
 
     private func save() {
