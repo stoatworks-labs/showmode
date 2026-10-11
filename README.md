@@ -63,6 +63,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Stage Manager *(coming in v0.5.0)* | `com.apple.WindowManager GloballyEnabled` off, WindowManager restarted |
 | ⌘Space *(coming in v0.5.0)* | Spotlight's shortcuts (64 ⌘Space, 65 ⌥⌘Space) off in WindowServer through SkyLight `CGSSetSymbolicHotKeyEnabled`, which is not saved, so a restart mid-show brings them back anyway |
 | Crash reports *(coming in v0.5.0)* | `com.apple.CrashReporter UseUNC`: "quit unexpectedly" goes to Notification Center, where Do Not Disturb holds it, instead of a window. The report is still written |
+| AirPlay Receiver *(coming in v0.5.0)* | `-currentHost com.apple.controlcenter AirplayReceiverEnabled` off, which Control Center applies at once (macOS 26 spells it correctly; the older misspelling `AirplayRecieverEnabled` is written too). Frees TCP 5000/7000 and stops another device taking over the screen |
 | Keyboard Setup Assistant *(coming in v0.5.0)* | quit whenever it opens mid-show (a clicker or keypad that presents as a keyboard). Nothing to restore |
 | Photo & media analysis *(coming in v0.5.0)* | `photoanalysisd` and `mediaanalysisd` paused (SIGSTOP) by a sweeper, resumed (SIGCONT) at the end or as soon as Show Mode goes away. See [Background work](#background-work) |
 | App update checks *(coming in v0.5.0)* | `SUEnableAutomaticChecks` off in each running Sparkle app's own defaults (Sparkle 2 watches the key while it runs); Microsoft AutoUpdate `HowToCheck` set to `Manual` unless the organisation manages it. Restored after |

@@ -14,6 +14,22 @@ enum Interruptions {
         if (crashNotifications.read() as? Bool) != true { crashNotifications.override(true) }
     }
 
+    // MARK: AirPlay Receiver
+
+    /// While AirPlay Receiver is on, a device signed in to the same Apple ID can put its screen
+    /// on the show Mac, and Control Center holds TCP 5000 and 7000, which show tools may want.
+    /// macOS 26 spells the key correctly and Control Center applies it at once (checked on
+    /// 26.4.1: the listener closed and reopened within seconds, no restart). Earlier versions use
+    /// the misspelling the CIS benchmark documents, which 26 ignores, so both are written. An
+    /// absent key means on.
+    static let airplayReceiver = ["AirplayReceiverEnabled", "AirplayRecieverEnabled"].map {
+        PrefKey(domain: "com.apple.controlcenter", key: $0, currentHost: true)
+    }
+
+    static func engageAirPlayReceiver() {
+        for k in airplayReceiver where (k.read() as? Bool) != false { k.override(false) }
+    }
+
     // MARK: Keyboard Setup Assistant
 
     /// Opens when anything that presents as a keyboard is plugged in: a clicker, an X-keys

@@ -65,7 +65,8 @@ setting back exactly as it was.
 > on the next launch after a crash. Cancelling the password prompt at the start changed nothing;
 > cancelling it at the end left only the update settings, which the next launch put back.
 > ⌘Space opened nothing during the show and Spotlight again after. A test app that crashed
-> mid-show opened no "quit unexpectedly" window, and its report was still saved. Stage Manager
+> mid-show opened no "quit unexpectedly" window, and its report was still saved. AirPlay
+> Receiver stopped listening at the start and was back at the end and after a crash. Stage Manager
 > went off and came back. A wallpaper another app set mid-show was black again within seven
 > seconds. A test connection on port 5900 showed as a remote session, and its end was logged.
 > Game Mode was forced on and went back to automatic, after a crash too. Update checks went off
@@ -143,6 +144,7 @@ the next start.
 | Turn off Stage Manager | *Coming in v0.5.0.* Stops Stage Manager sliding the show window into a strip at the side when another window is clicked. Restarts WindowManager. |
 | Disable ⌘Space (Spotlight search) | *Coming in v0.5.0.* Stops ⌘Space and ⌥⌘Space opening Spotlight over the show. |
 | Send crash reports to Notification Center | *Coming in v0.5.0.* When an app crashes, macOS opens a "quit unexpectedly" window over everything. This sends it to Notification Center instead, where Do Not Disturb holds it. The crash report is still saved. |
+| Turn off AirPlay Receiver | *Coming in v0.5.0.* Stops a phone or Mac signed in to the same Apple ID putting its screen on the show Mac, and frees the network ports AirPlay holds (5000 and 7000), which some show tools want. It comes back on when the show ends if it was on. |
 | Close Keyboard Setup Assistant | *Coming in v0.5.0.* Plugging in a clicker, a keypad or some MIDI and KVM devices can open Keyboard Setup Assistant on the main display. Show mode closes it as soon as it opens. Plug every device in before doors anyway: macOS assumes a standard keyboard when the assistant is closed unanswered. |
 | Pause photo & media analysis | *Coming in v0.5.0.* See [Background work](#background-work). |
 | Turn off app update checks (Sparkle, Microsoft) | *Coming in v0.5.0.* Stops the apps you have open checking for updates and opening "a new version is available" windows during the show. |

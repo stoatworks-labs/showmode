@@ -79,6 +79,7 @@ final class ShowController {
             warnings.append("System sounds may still play: macOS did not take the change")
         }
         if s.isOn(.crashDialogs) { Interruptions.engageCrashDialogs() }
+        if s.isOn(.airplayReceiver) { Interruptions.engageAirPlayReceiver() }
         if s.isOn(.keyboardSetup) { Interruptions.startClosingKeyboardSetup() }
 
         if s.isOn(.colourApps) { ColourShift.quitColourApps() }

@@ -17,6 +17,7 @@ enum Guard: String, CaseIterable {
     case notifications
     case systemSounds
     case crashDialogs
+    case airplayReceiver
     case keyboardSetup
     case nightShift
     case trueTone
@@ -53,6 +54,7 @@ enum Guard: String, CaseIterable {
         case .notifications: return "Do Not Disturb (notifications)"
         case .systemSounds: return "Disable system sounds (alerts & UI effects)"
         case .crashDialogs: return "Send crash reports to Notification Center"
+        case .airplayReceiver: return "Turn off AirPlay Receiver"
         case .keyboardSetup: return "Close Keyboard Setup Assistant"
         case .nightShift: return "Disable Night Shift"
         case .trueTone: return "Disable True Tone"
@@ -89,7 +91,7 @@ enum Guard: String, CaseIterable {
         ("Power", [.sleep, .lidSleep, .lowPower, .screenSaver]),
         ("Screen & input", [.hotCorners, .missionControl, .spaceSwipe, .clickToShowDesktop, .stageManager,
                             .spotlightKey, .wallpaper]),
-        ("Interruptions", [.notifications, .systemSounds, .crashDialogs, .keyboardSetup]),
+        ("Interruptions", [.notifications, .systemSounds, .crashDialogs, .airplayReceiver, .keyboardSetup]),
         ("Colour", [.nightShift, .trueTone, .autoAppearance, .colourApps]),
         ("Displays", [.cursorFence, .displayLayout, .privacyDots]),
         ("Background work", [.mediaAnalysis, .appUpdaters, .syncthing, .syncApps, .timeMachine, .spotlight,

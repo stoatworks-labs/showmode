@@ -45,6 +45,7 @@ struct ShowModeMain {
         print("AWDL up:         \(AWDL.up.map { "\($0)" } ?? "no interface")")
         print("⌘Space keys on:  \(Interruptions.spotlightKeysOn.map { "\($0)" } ?? "unavailable")")
         print("Crash reports:   \((Interruptions.crashNotifications.read() as? Bool) == true ? "notifications" : "dialogs")")
+        print("AirPlay:         \(Interruptions.airplayReceiver.map { "\($0.key)=\($0.read() ?? "unset")" })")
         print("Stage Manager:   \((Interruptions.stageManager.read() as? Bool) == true)")
         print("Game Mode:       \(GameMode.tool.flatMap(GameMode.policy) ?? "no Xcode")")
         print("Sparkle apps:    \(AppUpdaters.sparkleApps().map(\.name))")

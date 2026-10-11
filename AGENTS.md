@@ -71,10 +71,15 @@ Invariants for anyone (human or agent) changing this repo.
 - **Testing the root sweeper without a password:** `Shell.runAsAdmin(…, privileged: false)`
   runs the same batch as the user. Ignore SIGTERM/SIGINT/SIGHUP in the harness as AppDelegate
   does, or it passes where the app fails.
-- **Dead ends on macOS 26.4.1:** `AirplayRecieverEnabled` (the CIS key, `-currentHost
-  com.apple.controlcenter`) changes nothing: ControlCenter kept listening on 5000/7000 even
-  after a restart. `com.apple.locationd` cannot be written even as root (`Could not write
-  domain`), so Location Services cannot be switched off. Keyboard Setup Assistant quits at once
-  when opened by hand, so its guard needs a real unrecognised keyboard to test.
+- **AirPlay Receiver on macOS 26 is `AirplayReceiverEnabled`**, spelt correctly (`-currentHost
+  com.apple.controlcenter`), found by diffing preferences around the System Settings switch.
+  ControlCenter applies it at once: check the TCP 7000 listener, not the key. The misspelling
+  CIS documents (`AirplayRecieverEnabled`) changes nothing on 26, even after a ControlCenter
+  restart; the guard writes both for older macOS.
+- **Dead ends on macOS 26.4.1:** `com.apple.locationd` cannot be written even as root (`Could
+  not write domain`), so Location Services cannot be switched off. Keyboard Setup Assistant
+  quits at once when opened by hand, so its guard needs a real unrecognised keyboard to test.
+  When a documented key does nothing, diff the preferences around the System Settings switch
+  before giving up.
 - **The app icon is drawn, not an SF Symbol** — Apple's SF Symbols licence does not allow
   them in app icons. `scripts/make-icon.swift` writes `Resources/AppIcon.icns`.
