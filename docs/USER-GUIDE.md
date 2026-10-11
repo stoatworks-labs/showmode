@@ -46,7 +46,7 @@ setting back exactly as it was.
 > pages* was left as it was. **Not checked:** a Magic Trackpad or Magic Mouse in hand (their
 > settings are switched off and back the same way).
 >
-> **System sounds (coming in v0.5.0, checked 2026-10-09 on macOS 26.4.1):** with the alert
+> **System sounds (v0.5.0, checked 2026-10-09 on macOS 26.4.1):** with the alert
 > volume at half and interface sound effects and volume feedback on, starting a show turned all
 > three off, and macOS's own readings agreed. An interface sound effect and the volume-key pop
 > then sent nothing to the audio output. Both played again after the show ended, on the next
@@ -56,7 +56,7 @@ setting back exactly as it was.
 > runs a silent beep through the output at alert volume 0, so the check there is that show mode
 > leaves the same setting as dragging the slider to zero.
 >
-> **Background work, interruptions and remote sessions (coming in v0.5.0, checked 2026-10-11
+> **Background work, interruptions and remote sessions (v0.5.0, checked 2026-10-11
 > on macOS 26.4.1):** on a MacBook Pro, photo and media analysis were paused, and with the
 > password so were Spotlight's indexing workers (the system's own and new ones started mid-show)
 > and AWDL. All of them were running again at the end of the show. After the app was killed
@@ -89,8 +89,11 @@ setting back exactly as it was.
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
 > your show uses one of those screens, try it with them connected before the show.
-> **Released at v0.4.0.** v0.3.1 is field proven; the two guards new in v0.4.0, the
-> privacy dots and swipe between Spaces, have not yet been run on a show.
+> **Released at v0.5.0.** v0.3.1 is field proven; the guards new in v0.4.0 (privacy dots,
+> swipe between Spaces) and v0.5.0 (everything marked v0.5.0 above) have not yet been run on a
+> show. v0.5.0 also draws the menu-bar masks in the menu bar's own colour, white over the
+> blacked-out wallpaper, instead of red; a capture of the menu bar during a show (2026-10-11,
+> macOS 26.4.1) showed them solid white on the black bar.
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
 
@@ -114,7 +117,8 @@ the menu bar as a pair of theatre masks and has no Dock icon.
 ## Starting and ending a show
 
 Click the masks and choose **Start Show Mode**, or press **⌃⌥⌘S** anywhere. The masks
-turn solid red while show mode is on. **End Show Mode** (or ⌃⌥⌘S again) puts everything
+turn solid while show mode is on, drawn in the menu bar's own colour, so they show up white
+over the blacked-out wallpaper. **End Show Mode** (or ⌃⌥⌘S again) puts everything
 back.
 
 If something could not be applied — Do Not Disturb before its shortcuts are installed, a
@@ -139,8 +143,8 @@ the next start.
 | Disable click-wallpaper-to-show-desktop | Stops a stray click on the desktop sweeping every window aside. |
 | Black out desktop wallpaper | Paints the wallpaper black on every screen, including one plugged in mid-show, so an extended desktop never shows your wallpaper on the projector. The original comes back exactly, dynamic and aerial wallpapers and every Space included. |
 | Do Not Disturb | Turns on Do Not Disturb, so no notification banner lands on an output. See [Notifications](#notifications). |
-| Disable system sounds (alerts & UI effects) | *Coming in v0.5.0.* Silences the alert beep, interface sound effects such as emptying the Trash or taking a screenshot, and the pop a volume key plays, so none of them goes out through the show's audio. It does not mute or turn down the Mac's output: sound from apps, the show included, plays as normal. Your alert volume and sound settings come back when the show ends. |
-| Mute apps not allowed to play | *Coming in v0.5.0.* **Off by default.** See [Keeping other apps off the PA](#keeping-other-apps-off-the-pa). |
+| Disable system sounds (alerts & UI effects) | Silences the alert beep, interface sound effects such as emptying the Trash or taking a screenshot, and the pop a volume key plays, so none of them goes out through the show's audio. It does not mute or turn down the Mac's output: sound from apps, the show included, plays as normal. Your alert volume and sound settings come back when the show ends. |
+| Mute apps not allowed to play | **Off by default.** See [Keeping other apps off the PA](#keeping-other-apps-off-the-pa). |
 | Disable Night Shift | Turns Night Shift off **and** clears its schedule, so it cannot come back on at sunset mid-show. |
 | Disable True Tone | Stops the built-in display re-tinting itself to the room's light. |
 | Pin light/dark appearance | If the appearance is set to Auto, switches it to whichever of Light or Dark is showing now, so it cannot flip at sunset mid-show. Auto comes back when the show ends. |
@@ -148,22 +152,22 @@ the next start.
 | Fence cursor off show screens | See [Keeping the cursor off the show screens](#keeping-the-cursor-off-the-show-screens). |
 | Lock main display & keep new screens extended | See [Keeping the display arrangement](#keeping-the-display-arrangement). |
 | Hide privacy dots on full-screen external displays | Needs a one-time step in Recovery first. See [Privacy dots](#privacy-dots). |
-| Turn off Stage Manager | *Coming in v0.5.0.* Stops Stage Manager sliding the show window into a strip at the side when another window is clicked. Restarts WindowManager. |
-| Disable ⌘Space (Spotlight search) | *Coming in v0.5.0.* Stops ⌘Space and ⌥⌘Space opening Spotlight over the show. |
-| Send crash reports to Notification Center | *Coming in v0.5.0.* When an app crashes, macOS opens a "quit unexpectedly" window over everything. This sends it to Notification Center instead, where Do Not Disturb holds it. The crash report is still saved. |
-| Turn off AirPlay Receiver | *Coming in v0.5.0.* Stops a phone or Mac signed in to the same Apple ID putting its screen on the show Mac, and frees the network ports AirPlay holds (5000 and 7000), which some show tools want. It comes back on when the show ends if it was on. |
-| Close Keyboard Setup Assistant | *Coming in v0.5.0.* Plugging in a clicker, a keypad or some MIDI and KVM devices can open Keyboard Setup Assistant on the main display. Show mode closes it as soon as it opens. Plug every device in before doors anyway: macOS assumes a standard keyboard when the assistant is closed unanswered. |
-| Pause photo & media analysis | *Coming in v0.5.0.* See [Background work](#background-work). |
-| Turn off app update checks (Sparkle, Microsoft) | *Coming in v0.5.0.* Stops the apps you have open checking for updates and opening "a new version is available" windows during the show. |
-| Pause Syncthing | *Coming in v0.5.0.* Pauses every Syncthing folder that is syncing, and resumes only those. |
-| Quit sync apps (Resilio, Synology, MEGA, Sync.com, Box) | *Coming in v0.5.0.* Quits them if they are running and opens them again afterwards. None of them can be paused from outside, and some keep syncing through macOS after they quit, so treat it as a best effort. **Untick it if your show media lives in one of their folders.** |
-| Pause Time Machine (admin) | *Coming in v0.5.0.* **Off by default.** Stops a backup in progress and turns automatic backups off for the show. Needs Full Disk Access as well as your password: see [Background work](#background-work). |
-| Pause Spotlight indexing (admin) | *Coming in v0.5.0.* **Off by default.** See [Background work](#background-work). |
-| Turn off automatic macOS & App Store updates (admin) | *Coming in v0.5.0.* **Off by default.** An App Store update quits the app it is updating, and a downloaded macOS update can install itself overnight. Left alone on a Mac whose updates your organisation manages. |
-| Watch for remote sessions & keep the output black | *Coming in v0.5.0.* See [Remote access](#remote-access). |
-| Hold AWDL down: AirDrop, AirPlay, Sidecar (admin) | *Coming in v0.5.0.* **Expert, off by default.** AWDL is the Wi-Fi link behind AirDrop and AirPlay; it pulls the Wi-Fi radio off your network's channel, which causes regular spikes of 100–200 ms on a show network that runs over Wi-Fi. Holding it down for the show costs AirDrop, AirPlay from a nearby device, Sidecar and Universal Control. A cable is the real fix. |
-| Keep the Mac looking in use | *Coming in v0.5.0.* **Experimental, off by default.** Tells macOS every four minutes that someone is using the Mac, so an untouched show Mac is not taken for idle, which is when macOS starts its own maintenance. Not yet measured. |
-| Force Game Mode (needs Xcode) | *Coming in v0.5.0.* **Experimental, off by default.** Game Mode gives the full-screen app priority and turns down background work. It normally only comes on for games; this forces it on, with Apple's own tool from Xcode. Apple silicon, macOS 14 or later. |
+| Turn off Stage Manager | Stops Stage Manager sliding the show window into a strip at the side when another window is clicked. Restarts WindowManager. |
+| Disable ⌘Space (Spotlight search) | Stops ⌘Space and ⌥⌘Space opening Spotlight over the show. |
+| Send crash reports to Notification Center | When an app crashes, macOS opens a "quit unexpectedly" window over everything. This sends it to Notification Center instead, where Do Not Disturb holds it. The crash report is still saved. |
+| Turn off AirPlay Receiver | Stops a phone or Mac signed in to the same Apple ID putting its screen on the show Mac, and frees the network ports AirPlay holds (5000 and 7000), which some show tools want. It comes back on when the show ends if it was on. |
+| Close Keyboard Setup Assistant | Plugging in a clicker, a keypad or some MIDI and KVM devices can open Keyboard Setup Assistant on the main display. Show mode closes it as soon as it opens. Plug every device in before doors anyway: macOS assumes a standard keyboard when the assistant is closed unanswered. |
+| Pause photo & media analysis | See [Background work](#background-work). |
+| Turn off app update checks (Sparkle, Microsoft) | Stops the apps you have open checking for updates and opening "a new version is available" windows during the show. |
+| Pause Syncthing | Pauses every Syncthing folder that is syncing, and resumes only those. |
+| Quit sync apps (Resilio, Synology, MEGA, Sync.com, Box) | Quits them if they are running and opens them again afterwards. None of them can be paused from outside, and some keep syncing through macOS after they quit, so treat it as a best effort. **Untick it if your show media lives in one of their folders.** |
+| Pause Time Machine (admin) | **Off by default.** Stops a backup in progress and turns automatic backups off for the show. Needs Full Disk Access as well as your password: see [Background work](#background-work). |
+| Pause Spotlight indexing (admin) | **Off by default.** See [Background work](#background-work). |
+| Turn off automatic macOS & App Store updates (admin) | **Off by default.** An App Store update quits the app it is updating, and a downloaded macOS update can install itself overnight. Left alone on a Mac whose updates your organisation manages. |
+| Watch for remote sessions & keep the output black | See [Remote access](#remote-access). |
+| Hold AWDL down: AirDrop, AirPlay, Sidecar (admin) | **Expert, off by default.** AWDL is the Wi-Fi link behind AirDrop and AirPlay; it pulls the Wi-Fi radio off your network's channel, which causes regular spikes of 100–200 ms on a show network that runs over Wi-Fi. Holding it down for the show costs AirDrop, AirPlay from a nearby device, Sidecar and Universal Control. A cable is the real fix. |
+| Keep the Mac looking in use | **Experimental, off by default.** Tells macOS every four minutes that someone is using the Mac, so an untouched show Mac is not taken for idle, which is when macOS starts its own maintenance. Not yet measured. |
+| Force Game Mode (needs Xcode) | **Experimental, off by default.** Game Mode gives the full-screen app priority and turns down background work. It normally only comes on for games; this forces it on, with Apple's own tool from Xcode. Apple silicon, macOS 14 or later. |
 
 Starting show mode restarts the Dock once, which makes the Dock and the menu bar flicker
 for a moment. Do it before doors, not during a cue.
@@ -246,7 +250,7 @@ made. Whatever that Focus allows through — people or apps you have allowed in 
 
 ## Keeping other apps off the PA
 
-*Coming in v0.5.0, macOS 26 or later.* When the Mac's output feeds a PA, Outlook's new-mail
+*macOS 26 or later.* When the Mac's output feeds a PA, Outlook's new-mail
 chime or a browser tab is one click away from the audience. With **Mute apps not allowed to
 play** ticked, every app is silent during the show except the ones ticked under **Allowed to
 Play** in the menu: your show app, and anything else that should be heard. The menu lists the
@@ -298,7 +302,7 @@ neither) screen recording. The same line stays in the menu, marked ⚠︎, while
 
 ## Background work
 
-*Coming in v0.5.0.* A show Mac left untouched for hours looks idle to macOS, and idle is when
+A show Mac left untouched for hours looks idle to macOS, and idle is when
 macOS and other apps start their housekeeping: indexing, photo analysis, backups, updates. The
 cost is disk, network and heat more than processor time (on Apple silicon that work runs on the
 efficiency cores), and heat matters most on a fanless MacBook Air.
@@ -326,7 +330,7 @@ off).
 
 ## Pre-show checks
 
-*Coming in v0.5.0.* Some things no app can safely switch off. **Pre-show Checks** in the menu
+Some things no app can safely switch off. **Pre-show Checks** in the menu
 lists the ones it finds on this Mac, each with the one thing to do about it:
 
 - **A macOS update is waiting.** If anyone chooses *Install Tonight*, macOS installs it and
@@ -352,7 +356,7 @@ also stay at the top of the menu, marked ⚠︎, while it runs.
 
 ## Remote access
 
-*Coming in v0.5.0.* Show mode does not block remote access: whoever runs the show may need it.
+Show mode does not block remote access: whoever runs the show may need it.
 But several remote-access tools change what the audience sees when someone connects. RustDesk's
 privacy mode blacks out every display, Jump Desktop and Splashtop can change the resolution,
 Splashtop and Parsec can add a virtual display, Apple's high-performance Screen Sharing blanks

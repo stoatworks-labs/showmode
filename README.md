@@ -14,8 +14,8 @@ every setting back exactly as it was.
 > display lock, Do Not Disturb and appearance pinning on a real two-screen setup. Still
 > unchecked: the display lock with AirPlay, Sidecar or DisplayLink screens. The two guards new
 > in v0.4.0, privacy dots and swipe between Spaces, have not yet been run on a show, and the
-> guards coming in v0.5.0 (system sounds, background work, interruptions, remote sessions) have
-> only been checked on the bench. Full details in the [user guide](docs/USER-GUIDE.md).
+> guards new in v0.5.0 (system sounds, muting other apps, background work, interruptions, remote
+> sessions) have only been checked on the bench. Full details in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 
@@ -52,8 +52,8 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Click wallpaper to show desktop | `com.apple.WindowManager EnableStandardClickToShowDesktop` |
 | Desktop wallpaper | black on every screen (and any plugged in mid-show); the WallpaperAgent store is copied and put back, so dynamic/aerial wallpapers and every Space return exactly |
 | Notifications | Do Not Disturb via two generated Shortcuts (see below) |
-| System sounds *(coming in v0.5.0)* | alert volume and "Play user interface sound effects" to 0 through AudioServices (`ssvl`, `uion`), the calls System Settings' Sound pane makes, and `com.apple.sound.beep.feedback` to 0 (an integer: loginwindow plays the pop and reads it as one); only where on, restored after. Output volume, mute and app audio are untouched |
-| Other apps' sound *(coming in v0.5.0, off by default, macOS 26+)* | one private global Core Audio process tap (`muteBehavior = .muted`) mutes every app except those ticked under **Allowed to Play**, excluded by bundle ID (`CATapDescription.bundleIDs`) so one opened mid-show is simply heard; their helpers (`com.google.Chrome.helper`) count. Nothing reads the tap: no recording permission, no privacy dot. Measured by recording a loopback output: the mute takes hold of each sound as it starts, and a sound already playing when the show starts carries on until it stops, so the start-of-show note names those apps. It dies with Show Mode, so a crash brings sound back rather than silencing the show |
+| System sounds | alert volume and "Play user interface sound effects" to 0 through AudioServices (`ssvl`, `uion`), the calls System Settings' Sound pane makes, and `com.apple.sound.beep.feedback` to 0 (an integer: loginwindow plays the pop and reads it as one); only where on, restored after. Output volume, mute and app audio are untouched |
+| Other apps' sound *(off by default, macOS 26+)* | one private global Core Audio process tap (`muteBehavior = .muted`) mutes every app except those ticked under **Allowed to Play**, excluded by bundle ID (`CATapDescription.bundleIDs`) so one opened mid-show is simply heard; their helpers (`com.google.Chrome.helper`) count. Nothing reads the tap: no recording permission, no privacy dot. Measured by recording a loopback output: the mute takes hold of each sound as it starts, and a sound already playing when the show starts carries on until it stops, so the start-of-show note names those apps. It dies with Show Mode, so a crash brings sound back rather than silencing the show |
 | Night Shift | CoreBrightness `CBBlueLightClient` — disabled *and* its schedule cleared |
 | True Tone | CoreBrightness `CBTrueToneClient` |
 | Auto light/dark appearance | SkyLight `SLSSetAppearanceThemeSwitchesAutomatically(false)` pins the showing appearance, the same call System Settings makes (the preference key alone changes nothing live); restored after |
@@ -61,22 +61,22 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Cursor fence | keeps the cursor off the screens you tick |
 | Display arrangement | keeps the chosen (or starting) main display main, and splits any screen that starts mirroring mid-show back to extended |
 | Privacy dots | SkyLight `SLSSetSuppressPrivacyIndicatorOnExternalDisplays(true)`, the Privacy Indicators switch; only once the Recovery-only `system-override suppress-sw-camera-indication-on-external-displays=on` is set, and only on full-screen external displays (macOS rule). Restored after |
-| Stage Manager *(coming in v0.5.0)* | `com.apple.WindowManager GloballyEnabled` off, WindowManager restarted |
-| ⌘Space *(coming in v0.5.0)* | Spotlight's shortcuts (64 ⌘Space, 65 ⌥⌘Space) off in WindowServer through SkyLight `CGSSetSymbolicHotKeyEnabled`, which is not saved, so a restart mid-show brings them back anyway |
-| Crash reports *(coming in v0.5.0)* | `com.apple.CrashReporter UseUNC`: "quit unexpectedly" goes to Notification Center, where Do Not Disturb holds it, instead of a window. The report is still written |
-| AirPlay Receiver *(coming in v0.5.0)* | `-currentHost com.apple.controlcenter AirplayReceiverEnabled` off, which Control Center applies at once (macOS 26 spells it correctly; the older misspelling `AirplayRecieverEnabled` is written too). Frees TCP 5000/7000 and stops another device taking over the screen |
-| Keyboard Setup Assistant *(coming in v0.5.0)* | quit whenever it opens mid-show (a clicker or keypad that presents as a keyboard). Nothing to restore |
-| Photo & media analysis *(coming in v0.5.0)* | `photoanalysisd` and `mediaanalysisd` paused (SIGSTOP) by a sweeper, resumed (SIGCONT) at the end or as soon as Show Mode goes away. See [Background work](#background-work) |
-| App update checks *(coming in v0.5.0)* | `SUEnableAutomaticChecks` off in each running Sparkle app's own defaults (Sparkle 2 watches the key while it runs); Microsoft AutoUpdate `HowToCheck` set to `Manual` unless the organisation manages it. Restored after |
-| Syncthing *(coming in v0.5.0)* | every folder that is syncing paused through Syncthing's local REST API (`PATCH /rest/config/folders/<id>`, key from its `config.xml`); only those are resumed |
-| Sync apps *(coming in v0.5.0)* | quits Resilio Sync, Synology Drive, MEGA, Sync.com and Box Drive, and opens them again after. Several sync through File Provider, which may carry on after the app quits |
-| Time Machine *(coming in v0.5.0, off by default)* | `tmutil stopbackup` and `tmutil disable` — admin prompt, only if automatic backups are on. Read back after: without Full Disk Access `tmutil` reports success and changes nothing |
-| Spotlight indexing *(coming in v0.5.0, off by default)* | Spotlight's importers (`mdworker_shared`, `mdworker`) paused by a root sweeper started from the admin prompt; `mds` and `mds_stores` keep running and answering searches |
-| Automatic updates *(coming in v0.5.0, off by default)* | `AutomaticDownload` and `AutomaticallyInstallMacOSUpdates` (`com.apple.SoftwareUpdate`) and the App Store's `AutoUpdate` (`com.apple.commerce`) off — admin prompt; left alone on a managed Mac. Security responses and XProtect data are not touched |
-| Remote sessions *(coming in v0.5.0)* | every 5 s: inbound connections on 5900, 3283, 4000 and 7070 and TeamViewer's session process name the session in the menu and the log; the black wallpaper is put back if anything changed it |
-| AWDL *(coming in v0.5.0, expert, off by default)* | `ifconfig awdl0 down`, held down by the root sweeper (macOS raises it again on its own). Costs AirDrop, peer-to-peer AirPlay, Sidecar and Universal Control |
-| Look in use *(coming in v0.5.0, experimental, off)* | `IOPMAssertionDeclareUserActivity` every four minutes, so the untouched Mac is not taken for idle |
-| Game Mode *(coming in v0.5.0, experimental, off)* | Xcode's `gamepolicyctl game-mode set on`, and the previous policy put back. Needs Xcode itself |
+| Stage Manager | `com.apple.WindowManager GloballyEnabled` off, WindowManager restarted |
+| ⌘Space | Spotlight's shortcuts (64 ⌘Space, 65 ⌥⌘Space) off in WindowServer through SkyLight `CGSSetSymbolicHotKeyEnabled`, which is not saved, so a restart mid-show brings them back anyway |
+| Crash reports | `com.apple.CrashReporter UseUNC`: "quit unexpectedly" goes to Notification Center, where Do Not Disturb holds it, instead of a window. The report is still written |
+| AirPlay Receiver | `-currentHost com.apple.controlcenter AirplayReceiverEnabled` off, which Control Center applies at once (macOS 26 spells it correctly; the older misspelling `AirplayRecieverEnabled` is written too). Frees TCP 5000/7000 and stops another device taking over the screen |
+| Keyboard Setup Assistant | quit whenever it opens mid-show (a clicker or keypad that presents as a keyboard). Nothing to restore |
+| Photo & media analysis | `photoanalysisd` and `mediaanalysisd` paused (SIGSTOP) by a sweeper, resumed (SIGCONT) at the end or as soon as Show Mode goes away. See [Background work](#background-work) |
+| App update checks | `SUEnableAutomaticChecks` off in each running Sparkle app's own defaults (Sparkle 2 watches the key while it runs); Microsoft AutoUpdate `HowToCheck` set to `Manual` unless the organisation manages it. Restored after |
+| Syncthing | every folder that is syncing paused through Syncthing's local REST API (`PATCH /rest/config/folders/<id>`, key from its `config.xml`); only those are resumed |
+| Sync apps | quits Resilio Sync, Synology Drive, MEGA, Sync.com and Box Drive, and opens them again after. Several sync through File Provider, which may carry on after the app quits |
+| Time Machine *(off by default)* | `tmutil stopbackup` and `tmutil disable` — admin prompt, only if automatic backups are on. Read back after: without Full Disk Access `tmutil` reports success and changes nothing |
+| Spotlight indexing *(off by default)* | Spotlight's importers (`mdworker_shared`, `mdworker`) paused by a root sweeper started from the admin prompt; `mds` and `mds_stores` keep running and answering searches |
+| Automatic updates *(off by default)* | `AutomaticDownload` and `AutomaticallyInstallMacOSUpdates` (`com.apple.SoftwareUpdate`) and the App Store's `AutoUpdate` (`com.apple.commerce`) off — admin prompt; left alone on a managed Mac. Security responses and XProtect data are not touched |
+| Remote sessions | every 5 s: inbound connections on 5900, 3283, 4000 and 7070 and TeamViewer's session process name the session in the menu and the log; the black wallpaper is put back if anything changed it |
+| AWDL *(expert, off by default)* | `ifconfig awdl0 down`, held down by the root sweeper (macOS raises it again on its own). Costs AirDrop, peer-to-peer AirPlay, Sidecar and Universal Control |
+| Look in use *(experimental, off)* | `IOPMAssertionDeclareUserActivity` every four minutes, so the untouched Mac is not taken for idle |
+| Game Mode *(experimental, off)* | Xcode's `gamepolicyctl game-mode set on`, and the previous policy put back. Needs Xcode itself |
 
 ## Cursor fence
 
@@ -111,7 +111,7 @@ See the [user guide](docs/USER-GUIDE.md#privacy-dots) for the one-time setup.
 
 ## Background work
 
-*Coming in v0.5.0.* A show Mac left untouched for hours looks idle, which is when macOS and other
+A show Mac left untouched for hours looks idle, which is when macOS and other
 apps start their maintenance. Processes that may only be paused, never switched off, go to a
 **sweeper**: a small shell loop that sends SIGSTOP to every process with one of a few exact names
 every two seconds (so copies launchd starts mid-show are caught), and SIGCONT to them all when the
@@ -129,7 +129,7 @@ and Apple Intelligence (turning it off can delete its models and download them a
 
 ## Pre-show checks
 
-*Coming in v0.5.0.* What no app can safely switch off is listed under **Pre-show Checks**, each
+What no app can safely switch off is listed under **Pre-show Checks**, each
 with the one thing to do: a macOS update waiting (someone choosing *Install Tonight* restarts the
 Mac overnight), updates or Microsoft AutoUpdate managed by an organisation, Dropbox, Google Drive
 and OneDrive running (they can only be paused from their own menus; Dropbox keeps syncing after
