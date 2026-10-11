@@ -56,6 +56,28 @@ setting back exactly as it was.
 > runs a silent beep through the output at alert volume 0, so the check there is that show mode
 > leaves the same setting as dragging the slider to zero.
 >
+> **Background work, interruptions and remote sessions (coming in v0.5.0, checked 2026-10-11
+> on macOS 26.4.1):** on a MacBook Pro, photo and media analysis were paused, and with the
+> password so were Spotlight's indexing workers (the system's own and new ones started mid-show)
+> and AWDL. All of them were running again at the end of the show. After the app was killed
+> outright mid-show, the pause undid itself within five seconds and the relaunch put the rest
+> back. Automatic macOS and App Store updates went off at the start and back on at the end, and
+> on the next launch after a crash. Cancelling the password prompt at the start changed nothing;
+> cancelling it at the end left only the update settings, which the next launch put back.
+> ⌘Space opened nothing during the show and Spotlight again after. A test app that crashed
+> mid-show opened no "quit unexpectedly" window, and its report was still saved. Stage Manager
+> went off and came back. A wallpaper another app set mid-show was black again within seven
+> seconds. A test connection on port 5900 showed as a remote session, and its end was logged.
+> Game Mode was forced on and went back to automatic, after a crash too. Update checks went off
+> and came back for a running Sparkle app and for Microsoft AutoUpdate. The pre-show checks found
+> a waiting macOS update, OneDrive, battery power and Wi-Fi. **Not checked:** Time Machine (it
+> was off on that Mac); whether Spotlight catches up without re-indexing, and how much any of
+> this saves on a real show; real Syncthing (only a stand-in for its interface), the five sync
+> apps (TextEdit stood in for the list), a real remote session, TeamViewer, and the
+> blacked-out-display warning; whether a running app takes the update-check change without a
+> relaunch; Keyboard Setup Assistant, which needs a device macOS does not recognise; and what the
+> experimental user-activity heartbeat changes.
+>
 > **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
@@ -118,6 +140,21 @@ the next start.
 | Fence cursor off show screens | See [Keeping the cursor off the show screens](#keeping-the-cursor-off-the-show-screens). |
 | Lock main display & keep new screens extended | See [Keeping the display arrangement](#keeping-the-display-arrangement). |
 | Hide privacy dots on full-screen external displays | Needs a one-time step in Recovery first. See [Privacy dots](#privacy-dots). |
+| Turn off Stage Manager | *Coming in v0.5.0.* Stops Stage Manager sliding the show window into a strip at the side when another window is clicked. Restarts WindowManager. |
+| Disable ⌘Space (Spotlight search) | *Coming in v0.5.0.* Stops ⌘Space and ⌥⌘Space opening Spotlight over the show. |
+| Send crash reports to Notification Center | *Coming in v0.5.0.* When an app crashes, macOS opens a "quit unexpectedly" window over everything. This sends it to Notification Center instead, where Do Not Disturb holds it. The crash report is still saved. |
+| Close Keyboard Setup Assistant | *Coming in v0.5.0.* Plugging in a clicker, a keypad or some MIDI and KVM devices can open Keyboard Setup Assistant on the main display. Show mode closes it as soon as it opens. Plug every device in before doors anyway: macOS assumes a standard keyboard when the assistant is closed unanswered. |
+| Pause photo & media analysis | *Coming in v0.5.0.* See [Background work](#background-work). |
+| Turn off app update checks (Sparkle, Microsoft) | *Coming in v0.5.0.* Stops the apps you have open checking for updates and opening "a new version is available" windows during the show. |
+| Pause Syncthing | *Coming in v0.5.0.* Pauses every Syncthing folder that is syncing, and resumes only those. |
+| Quit sync apps (Resilio, Synology, MEGA, Sync.com, Box) | *Coming in v0.5.0.* Quits them if they are running and opens them again afterwards. None of them can be paused from outside, and some keep syncing through macOS after they quit, so treat it as a best effort. **Untick it if your show media lives in one of their folders.** |
+| Pause Time Machine (admin) | *Coming in v0.5.0.* **Off by default.** Stops a backup in progress and turns automatic backups off for the show. Needs Full Disk Access as well as your password: see [Background work](#background-work). |
+| Pause Spotlight indexing (admin) | *Coming in v0.5.0.* **Off by default.** See [Background work](#background-work). |
+| Turn off automatic macOS & App Store updates (admin) | *Coming in v0.5.0.* **Off by default.** An App Store update quits the app it is updating, and a downloaded macOS update can install itself overnight. Left alone on a Mac whose updates your organisation manages. |
+| Watch for remote sessions & keep the output black | *Coming in v0.5.0.* See [Remote access](#remote-access). |
+| Hold AWDL down: AirDrop, AirPlay, Sidecar (admin) | *Coming in v0.5.0.* **Expert, off by default.** AWDL is the Wi-Fi link behind AirDrop and AirPlay; it pulls the Wi-Fi radio off your network's channel, which causes regular spikes of 100–200 ms on a show network that runs over Wi-Fi. Holding it down for the show costs AirDrop, AirPlay from a nearby device, Sidecar and Universal Control. A cable is the real fix. |
+| Keep the Mac looking in use | *Coming in v0.5.0.* **Experimental, off by default.** Tells macOS every four minutes that someone is using the Mac, so an untouched show Mac is not taken for idle, which is when macOS starts its own maintenance. Not yet measured. |
+| Force Game Mode (needs Xcode) | *Coming in v0.5.0.* **Experimental, off by default.** Game Mode gives the full-screen app priority and turns down background work. It normally only comes on for games; this forces it on, with Apple's own tool from Xcode. Apple silicon, macOS 14 or later. |
 
 Starting show mode restarts the Dock once, which makes the Dock and the menu bar flicker
 for a moment. Do it before doors, not during a cue.
@@ -228,6 +265,75 @@ Whether or not you have done it, show mode tells you at the start of a show if a
 showing, on which screen and why: the app using the microphone, the camera, or (when it is
 neither) screen recording. The same line stays in the menu, marked ⚠︎, while the dot shows.
 
+## Background work
+
+*Coming in v0.5.0.* A show Mac left untouched for hours looks idle to macOS, and idle is when
+macOS and other apps start their housekeeping: indexing, photo analysis, backups, updates. The
+cost is disk, network and heat more than processor time (on Apple silicon that work runs on the
+efficiency cores), and heat matters most on a fanless MacBook Air.
+
+**Pausing, not switching off.** Photo and media analysis and Spotlight's indexing are paused
+for the show and resumed afterwards, so nothing has to start again from scratch. A small helper
+pauses them and checks every two seconds for new copies. It resumes everything at the end of
+the show, and by itself as soon as Show Mode goes away, crash included. While they are paused,
+Photos, Live Text and Visual Look Up wait, and files that change are not added to Spotlight
+until the show ends. Spotlight search itself keeps working.
+
+**Spotlight indexing** needs your password, because some of its processes belong to the
+system. It covers every drive, including one plugged in mid-show, and writes nothing to the
+drives themselves.
+
+**Time Machine** needs your password and **Full Disk Access**: without it macOS reports that
+backups are off when they are not. Show mode checks and says so. To give it access, choose
+**Setup → Full Disk Access (to pause Time Machine)** and turn on Show Mode in the list. Automatic
+backups come back on at the end of the show if they were on before.
+
+What show mode leaves alone on purpose: the processes that answer Spotlight searches, iCloud,
+security scanning, anything to do with Apple Intelligence (switching it off can delete its
+models and download them again), and Location Services (macOS 26 does not let an app switch it
+off).
+
+## Pre-show checks
+
+*Coming in v0.5.0.* Some things no app can safely switch off. **Pre-show Checks** in the menu
+lists the ones it finds on this Mac, each with the one thing to do about it:
+
+- **A macOS update is waiting.** If anyone chooses *Install Tonight*, macOS installs it and
+  restarts overnight whatever the settings say, and that cannot be cancelled.
+- **Updates managed by your organisation** can restart the Mac, or quit Office apps, on their
+  deadline.
+- **Dropbox, Google Drive, OneDrive** can only be paused from their own menus, and Dropbox keeps
+  syncing after it quits. **Arq, Carbon Copy Cloner, Backblaze, ChronoSync** can start a backup
+  mid-show: pause or disable them for the show.
+- **Security software** that opens its own windows or scans on a schedule: Intego, Sophos, Trend
+  Micro, Norton, LuLu, BlockBlock and Microsoft Defender each get their own line. Security
+  software run by your IT team is never touched. Do Not Disturb already silences the ones that
+  use ordinary notifications (Malwarebytes, Bitdefender, Kaspersky, ESET, ClamXAV).
+- **The Mac itself:** running hot, running on battery, or a network on Wi-Fi.
+- **A remote session** is active (see below).
+
+The menu also reminds you of two things to do before doors: allow any "find devices on your
+local network" prompt (NDI and Dante find nothing, with no error, until it is allowed), and plug
+in every accessory, so a laptop never asks "Allow accessory to connect?" during the show.
+
+The ones that can change during the show — a remote session, heat, battery, the network —
+also stay at the top of the menu, marked ⚠︎, while it runs.
+
+## Remote access
+
+*Coming in v0.5.0.* Show mode does not block remote access: whoever runs the show may need it.
+But several remote-access tools change what the audience sees when someone connects. RustDesk's
+privacy mode blacks out every display, Jump Desktop and Splashtop can change the resolution,
+Splashtop and Parsec can add a virtual display, Apple's high-performance Screen Sharing blanks
+the screens, and TeamViewer puts its own idea of the wallpaper back when a session ends.
+
+With **Watch for remote sessions & keep the output black** ticked, show mode checks every five
+seconds. It names an active session in the menu and in its log (Screen Sharing or VNC, Apple
+Remote Desktop, NoMachine, AnyDesk and TeamViewer are recognised), warns if a display has been
+blacked out (in the menu, marked ⚠︎), and puts the black wallpaper back if anything changed it. The display lock keeps
+your main display main whatever a session does. If you use a remote tool on the show Mac, set it
+not to change the resolution or the wallpaper on connect, and rehearse with it.
+
 ## Driving it from somewhere else
 
 Show Mode answers a URL scheme, so Companion, a show-control script or a Terminal can drive
@@ -260,6 +366,10 @@ Before Show Mode changes anything it writes down what was there, in
 those values — a setting you had already switched off yourself stays off. The same happens
 when you quit, when a launcher stops the app, and if the app crashes or the Mac restarts
 mid-show: the next launch finds the journal, restores it, and tells you it did.
+
+Settings that need your password are put back with one password prompt at the end of the show.
+If you cancel it, show mode says what it could not put back and keeps a note of it: **Finish
+Restoring** in the menu asks again, and so does the next launch.
 
 Launch at Login (in Setup) is worth turning on for a show machine, so a restart mid-show is
 followed by a clean restore.

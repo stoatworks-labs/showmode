@@ -50,5 +50,31 @@ Invariants for anyone (human or agent) changing this repo.
 - **Testing without Accessibility:** copy the built app, give it another bundle id, remove
   its URL types and ad-hoc sign it. It has no TCC grant, so the fence runs its fallback, and
   your own Security settings stay untouched. Drive it with a posted ⌃⌥⌘S.
+- **One admin prompt, every command run.** `Shell.runAsAdmin` runs each command whatever the
+  one before did and reports failures per `AdminStep`. A cancelled engage prompt puts each
+  step's journal entries back to their state before the show (a leftover from an unfinished
+  restore survives); a step that fails keeps them, since some of its commands may have run. At
+  restore a failed step keeps its entries, so **Finish Restoring** and the next launch retry —
+  a cancelled restore must never clear the journal. Engage adds to a leftover entry, never
+  overwrites it. Restore commands must be safe to run twice (`defaults delete` only if the key is
+  there). Read back anything that can report success without taking effect (`tmutil disable`
+  without Full Disk Access), and keep the entry when in doubt: undoing a no-op is harmless.
+- **Pausing processes (`Sweeper`).** Only the exact names in `Paused`, never a pattern. Never
+  mds, mds_stores, logd, WindowServer, configd, opendirectoryd, fseventsd, trustd or the iCloud
+  daemons: they panic the Mac, lose file events for every app, or hang every caller. A sweeper
+  learns Show Mode has gone from its pipe or FIFO closing, never from a pid (pids get reused),
+  so keep both ends close-on-exec: any other child holding one would keep things paused after
+  a crash. Show Mode ignores SIGTERM, SIGINT and SIGHUP (AppDelegate), anything it starts
+  inherits that, and bash cannot trap or reset a signal ignored at its start: the sweeper stops
+  its child with SIGKILL. The old SIGTERM version left Spotlight paused after End. The root
+  sweeper's script is passed inline, never run from a file the user could rewrite.
+- **Testing the root sweeper without a password:** `Shell.runAsAdmin(…, privileged: false)`
+  runs the same batch as the user. Ignore SIGTERM/SIGINT/SIGHUP in the harness as AppDelegate
+  does, or it passes where the app fails.
+- **Dead ends on macOS 26.4.1:** `AirplayRecieverEnabled` (the CIS key, `-currentHost
+  com.apple.controlcenter`) changes nothing: ControlCenter kept listening on 5000/7000 even
+  after a restart. `com.apple.locationd` cannot be written even as root (`Could not write
+  domain`), so Location Services cannot be switched off. Keyboard Setup Assistant quits at once
+  when opened by hand, so its guard needs a real unrecognised keyboard to test.
 - **The app icon is drawn, not an SF Symbol** — Apple's SF Symbols licence does not allow
   them in app icons. `scripts/make-icon.swift` writes `Resources/AppIcon.icns`.
