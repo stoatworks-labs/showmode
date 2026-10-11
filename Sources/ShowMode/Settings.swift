@@ -6,6 +6,7 @@ enum Guard: String, CaseIterable {
     case sleep
     case lidSleep
     case lowPower
+    case holdRestarts
     case screenSaver
     case hotCorners
     case missionControl
@@ -43,6 +44,7 @@ enum Guard: String, CaseIterable {
         case .sleep: return "Prevent display & system sleep"
         case .lidSleep: return "Prevent sleep on lid close (admin)"
         case .lowPower: return "Turn off Low Power Mode (admin)"
+        case .holdRestarts: return "Stop restarts, shut-downs & log-outs"
         case .screenSaver: return "Disable screen saver"
         case .hotCorners: return "Disable hot corners"
         case .missionControl: return "Disable Mission Control, Exposé & gestures"
@@ -88,7 +90,7 @@ enum Guard: String, CaseIterable {
 
     /// How the menu groups them.
     static let sections: [(title: String, guards: [Guard])] = [
-        ("Power", [.sleep, .lidSleep, .lowPower, .screenSaver]),
+        ("Power", [.sleep, .lidSleep, .lowPower, .holdRestarts, .screenSaver]),
         ("Screen & input", [.hotCorners, .missionControl, .spaceSwipe, .clickToShowDesktop, .stageManager,
                             .spotlightKey, .wallpaper]),
         ("Interruptions", [.notifications, .systemSounds, .crashDialogs, .airplayReceiver, .keyboardSetup]),

@@ -45,6 +45,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Display & system idle sleep | IOKit power assertions (die with the process) |
 | Lid-close sleep *(off by default)* | `pmset disablesleep 1` — admin prompt |
 | Low Power Mode | `pmset <source> powermode/lowpowermode 0`, per power source — admin prompt, only if it is on |
+| Restarts, shut-downs, log-outs *(coming in v0.5.0)* | refused while a show runs: macOS asks every app to quit first, with the reason in the quit Apple Event (`keyAEQuitReason`), and one refusal stops it. Apps that quit in the meantime are reopened. An ordinary Quit still restores and quits; a forced `shutdown -r` asks no one |
 | Screen saver | `com.apple.screensaver idleTime 0` (current host) |
 | Hot corners | all four `wvous-*` set to no-op, Dock restarted |
 | Mission Control / App Exposé / gestures | `mcx-expose-disabled`, the four Dock gesture keys, Dock restarted |

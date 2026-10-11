@@ -76,6 +76,11 @@ Invariants for anyone (human or agent) changing this repo.
   ControlCenter applies it at once: check the TCP 7000 listener, not the key. The misspelling
   CIS documents (`AirplayRecieverEnabled`) changes nothing on 26, even after a ControlCenter
   restart; the guard writes both for older macOS.
+- **Refusing restarts:** `applicationShouldTerminate` returns `.terminateCancel` only for a
+  quit Apple Event carrying `keyAEQuitReason` (restart, shut-down, log-out) while a show is on;
+  a quit with no reason (the menu, ⌘Q, a script) must still restore and quit. Test it by sending
+  that event with the reason attribute set and checking for error -128 in the reply, not by
+  restarting the Mac.
 - **Dead ends on macOS 26.4.1:** `com.apple.locationd` cannot be written even as root (`Could
   not write domain`), so Location Services cannot be switched off. Keyboard Setup Assistant
   quits at once when opened by hand, so its guard needs a real unrecognised keyboard to test.
