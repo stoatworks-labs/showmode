@@ -11,7 +11,6 @@ final class ShowController {
     let layout = DisplayLayout()
     private let sleep = SleepAssertion()
     private let activity = UserActivity()
-    private let appQuits = AppQuits()
     private var watch: Timer?
     private var lastSessions: [String] = []
     /// Messages from the last engage worth showing (a guard that could not apply), or from a
@@ -101,7 +100,6 @@ final class ShowController {
         }
         if s.isOn(.syncApps) { QuitApps.quit(s.syncApps) }
         if s.isOn(.userActivity) { activity.start() }
-        if s.isOn(.holdRestarts) { appQuits.start() }
         if s.isOn(.gameMode), !GameMode.engage() {
             warnings.append("Game Mode not forced on: it needs Xcode installed")
         }
@@ -196,7 +194,6 @@ final class ShowController {
         layout.stop()
         sleep.release()
         activity.stop()
-        appQuits.stop()
         watch?.invalidate()
         watch = nil
         Interruptions.stopClosingKeyboardSetup()
@@ -279,33 +276,6 @@ final class ShowController {
         guard !cmds.isEmpty else { return [] }
         let keys = [(media, "mediaAnalysis"), (spotlight, "spotlightPaused"), (awdl, "awdlDown")].filter(\.0).map(\.1)
         return [AdminStep(label: "Paused background work", journalKeys: keys, commands: cmds)]
-    }
-
-    /// A restart, shut-down or log-out arrived mid-show and Show Mode refused it, which stops
-    /// it. The apps macOS asked to quit alongside get a few seconds to finish; then the ones
-    /// that did are opened again, the one that was in front brought back to the front. `done`
-    /// gets their names.
-    func refused(_ kind: Restarts.Kind, done: @escaping ([String]) -> Void) {
-        let at = Date()
-        let front = appQuits.front
-        let when = DateFormatter.localizedString(from: at, dateStyle: .none, timeStyle: .short)
-        ShowLog.note("refused a \(kind.rawValue) during the show")
-        warnings.append("Stopped a \(kind.rawValue) at \(when): end the show to let it through")
-        onChange?()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 8) { [weak self] in
-            guard let self, self.engaged else { return }
-            // Not the apps Show Mode quit itself at the start (colour and sync apps).
-            let ours = Set((Journal.shared["quitApps"] as? [String] ?? []).map { URL(fileURLWithPath: $0).standardizedFileURL })
-            let urls = self.appQuits.quit(since: at.addingTimeInterval(-15)).filter { !ours.contains($0.standardizedFileURL) }
-            for url in urls {
-                let cfg = NSWorkspace.OpenConfiguration()
-                cfg.activates = url == front
-                NSWorkspace.shared.openApplication(at: url, configuration: cfg)
-            }
-            let names = urls.map { $0.deletingPathExtension().lastPathComponent }
-            if !names.isEmpty { ShowLog.note("reopened after the refused \(kind.rawValue): \(names)") }
-            done(names)
-        }
     }
 
     func toggle() { engaged ? restore() : engage() }

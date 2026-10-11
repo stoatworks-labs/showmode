@@ -66,10 +66,7 @@ setting back exactly as it was.
 > cancelling it at the end left only the update settings, which the next launch put back.
 > ⌘Space opened nothing during the show and Spotlight again after. A test app that crashed
 > mid-show opened no "quit unexpectedly" window, and its report was still saved. AirPlay
-> Receiver stopped listening at the start and was back at the end and after a crash. Given the
-> quit request macOS sends before a restart, shut-down or log-out, a running show refused all
-> three, and an app quit just before was opened again eight seconds later; with no show running,
-> or the guard off, it quit as before. A real restart was not tried. Stage Manager
+> Receiver stopped listening at the start and was back at the end and after a crash. Stage Manager
 > went off and came back. A wallpaper another app set mid-show was black again within seven
 > seconds. A test connection on port 5900 showed as a remote session, and its end was logged.
 > Game Mode was forced on and went back to automatic, after a crash too. Update checks went off
@@ -129,7 +126,6 @@ the next start.
 | Prevent display & system sleep | Holds a power assertion, the same way a video player does. It goes away with the app, so a crash cannot leave a Mac that never sleeps. |
 | Prevent sleep on lid close | Sets `pmset disablesleep`, so a laptop driving a projector keeps going with its lid shut. **Off by default** because it asks for your password on every start and end. |
 | Turn off Low Power Mode | Only if it is on, per power source (battery and mains separately). Asks for your password once. |
-| Stop restarts, shut-downs & log-outs | *Coming in v0.5.0.* See [Restarts](#restarts). |
 | Disable screen saver | Sets the idle time to never. |
 | Disable hot corners | Sets all four corners to do nothing, and restarts the Dock so it takes effect. |
 | Disable Mission Control, Exposé & gestures | Turns off Mission Control and App Exposé, including their keys, and the swipe and pinch gestures for Mission Control, App Exposé, Show Desktop and Launchpad. Restarts the Dock. |
@@ -298,25 +294,6 @@ What show mode leaves alone on purpose: the processes that answer Spotlight sear
 security scanning, anything to do with Apple Intelligence (switching it off can delete its
 models and download them again), and Location Services (macOS 26 does not let an app switch it
 off).
-
-## Restarts
-
-*Coming in v0.5.0.* Show mode cannot cancel a macOS update that has been scheduled, and if
-anyone chooses *Install Tonight* macOS installs it and restarts overnight. What it can do is
-refuse to quit. Before restarting, shutting down or logging out, macOS asks every open app to
-quit, and one app saying no stops the whole thing. With **Stop restarts, shut-downs & log-outs**
-ticked, show mode says no while a show is on and tells you so in a note under the menu bar and
-in its menu. The restart waits until you end the show; then restart yourself, or let the update
-try again.
-
-macOS asks all the apps at the same moment, so some of them, possibly your show app, will
-already have quit by the time the restart is stopped. Show mode opens those again a few seconds
-later and brings back to the front the one that was in front. Each reopens the way it does
-after any quit, so check the show app picked up where it was.
-
-Two things get past it. A forced restart (an organisation's update deadline, `shutdown -r` in
-Terminal) asks no app at all. And quitting Show Mode from its own menu still quits it, putting
-everything back as usual.
 
 ## Pre-show checks
 

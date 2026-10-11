@@ -76,11 +76,18 @@ Invariants for anyone (human or agent) changing this repo.
   ControlCenter applies it at once: check the TCP 7000 listener, not the key. The misspelling
   CIS documents (`AirplayRecieverEnabled`) changes nothing on 26, even after a ControlCenter
   restart; the guard writes both for older macOS.
-- **Refusing restarts:** `applicationShouldTerminate` returns `.terminateCancel` only for a
-  quit Apple Event carrying `keyAEQuitReason` (restart, shut-down, log-out) while a show is on;
-  a quit with no reason (the menu, ⌘Q, a script) must still restore and quit. Test it by sending
-  that event with the reason attribute set and checking for error -128 in the reply, not by
-  restarting the Mac.
+- **Restarts cannot be refused from Show Mode.** A guard that returned `.terminateCancel` for a
+  quit Apple Event with `keyAEQuitReason` was built and removed (1bb3ab0, reverted): on a real
+  restart it logged its refusal and macOS restarted anyway. loginwindow's log (`log show
+  --predicate 'process == "loginwindow"'`; the zsh `log` builtin shadows `/usr/bin/log`) shows
+  why. It lists only normal apps (`App is UI Element, do not add it` — menu-bar-only apps like
+  Show Mode, plus Finder and the Dock, are left off), asks them to quit one at a time, newest
+  launch (highest LSASN) first, waiting for each, and stops at the first that refuses — the apps
+  asked before it are already gone. Apps with sudden termination are killed at the end, never
+  asked. A playback app that refuses therefore protects only what launched before it. The only
+  way to protect every app would be a separate normal helper app launched at show start (newest,
+  so asked first), relaunched whenever another app launches; declined, for its Dock icon and an
+  unverified gain against an Install Tonight restart.
 - **Dead ends on macOS 26.4.1:** `com.apple.locationd` cannot be written even as root (`Could
   not write domain`), so Location Services cannot be switched off. Keyboard Setup Assistant
   quits at once when opened by hand, so its guard needs a real unrecognised keyboard to test.

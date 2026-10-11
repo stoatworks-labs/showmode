@@ -111,14 +111,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        // macOS asks every app to quit before a restart, shut-down or log-out; refusing stops it.
-        if show.engaged, Settings.shared.isOn(.holdRestarts), let kind = Restarts.reason {
-            notify("Show Mode stopped a \(kind.rawValue): the show is still on. End it first to \(kind.verb).")
-            show.refused(kind) { [weak self] names in
-                if !names.isEmpty { self?.notify("Reopened what the \(kind.rawValue) closed: \(names.joined(separator: ", "))") }
-            }
-            return .terminateCancel
-        }
         if show.engaged || Journal.shared.exists { show.restore() }
         return .terminateNow
     }
