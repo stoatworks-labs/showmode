@@ -16,6 +16,7 @@ enum Guard: String, CaseIterable {
     case wallpaper
     case notifications
     case systemSounds
+    case muteOtherApps
     case crashDialogs
     case airplayReceiver
     case keyboardSetup
@@ -53,6 +54,7 @@ enum Guard: String, CaseIterable {
         case .wallpaper: return "Black out desktop wallpaper"
         case .notifications: return "Do Not Disturb (notifications)"
         case .systemSounds: return "Disable system sounds (alerts & UI effects)"
+        case .muteOtherApps: return "Mute apps not allowed to play"
         case .crashDialogs: return "Send crash reports to Notification Center"
         case .airplayReceiver: return "Turn off AirPlay Receiver"
         case .keyboardSetup: return "Close Keyboard Setup Assistant"
@@ -79,7 +81,7 @@ enum Guard: String, CaseIterable {
 
     var defaultOn: Bool {
         switch self {
-        case .lidSleep, .timeMachine, .spotlight, .softwareUpdate, .awdl, .userActivity, .gameMode:
+        case .lidSleep, .timeMachine, .spotlight, .softwareUpdate, .awdl, .userActivity, .gameMode, .muteOtherApps:
             return false
         default:
             return true
@@ -91,7 +93,7 @@ enum Guard: String, CaseIterable {
         ("Power", [.sleep, .lidSleep, .lowPower, .screenSaver]),
         ("Screen & input", [.hotCorners, .missionControl, .spaceSwipe, .clickToShowDesktop, .stageManager,
                             .spotlightKey, .wallpaper]),
-        ("Interruptions", [.notifications, .systemSounds, .crashDialogs, .airplayReceiver, .keyboardSetup]),
+        ("Interruptions", [.notifications, .systemSounds, .muteOtherApps, .crashDialogs, .airplayReceiver, .keyboardSetup]),
         ("Colour", [.nightShift, .trueTone, .autoAppearance, .colourApps]),
         ("Displays", [.cursorFence, .displayLayout, .privacyDots]),
         ("Background work", [.mediaAnalysis, .appUpdaters, .syncthing, .syncApps, .timeMachine, .spotlight,
@@ -157,6 +159,12 @@ final class Settings {
             ]
         }
         set { d.set(newValue, forKey: "syncApps") }
+    }
+
+    /// Bundle identifiers of the apps still heard while the other apps are muted.
+    var allowedAudioApps: [String] {
+        get { d.stringArray(forKey: "allowedAudioApps") ?? [] }
+        set { d.set(newValue, forKey: "allowedAudioApps") }
     }
 
     /// Shortcuts that turn Focus on and off (see FocusGuard).

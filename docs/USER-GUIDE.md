@@ -66,7 +66,13 @@ setting back exactly as it was.
 > cancelling it at the end left only the update settings, which the next launch put back.
 > ⌘Space opened nothing during the show and Spotlight again after. A test app that crashed
 > mid-show opened no "quit unexpectedly" window, and its report was still saved. AirPlay
-> Receiver stopped listening at the start and was back at the end and after a crash. Stage Manager
+> Receiver stopped listening at the start and was back at the end and after a crash. Muting other
+> apps was checked by ear and then by recording what reached a loopback output with test tones:
+> a sound started during the show by an app not allowed to play never reached the output, nor did
+> one aimed straight at that output by its own app; an allowed app opened mid-show was heard
+> alongside it; and when Show Mode was killed the muted sound came back at once. A sound already
+> playing when the show started carried on until it stopped, as the guide now says. No permission
+> prompt and no privacy dot appeared (built-in display only). Stage Manager
 > went off and came back. A wallpaper another app set mid-show was black again within seven
 > seconds. A test connection on port 5900 showed as a remote session, and its end was logged.
 > Game Mode was forced on and went back to automatic, after a crash too. Update checks went off
@@ -134,6 +140,7 @@ the next start.
 | Black out desktop wallpaper | Paints the wallpaper black on every screen, including one plugged in mid-show, so an extended desktop never shows your wallpaper on the projector. The original comes back exactly, dynamic and aerial wallpapers and every Space included. |
 | Do Not Disturb | Turns on Do Not Disturb, so no notification banner lands on an output. See [Notifications](#notifications). |
 | Disable system sounds (alerts & UI effects) | *Coming in v0.5.0.* Silences the alert beep, interface sound effects such as emptying the Trash or taking a screenshot, and the pop a volume key plays, so none of them goes out through the show's audio. It does not mute or turn down the Mac's output: sound from apps, the show included, plays as normal. Your alert volume and sound settings come back when the show ends. |
+| Mute apps not allowed to play | *Coming in v0.5.0.* **Off by default.** See [Keeping other apps off the PA](#keeping-other-apps-off-the-pa). |
 | Disable Night Shift | Turns Night Shift off **and** clears its schedule, so it cannot come back on at sunset mid-show. |
 | Disable True Tone | Stops the built-in display re-tinting itself to the room's light. |
 | Pin light/dark appearance | If the appearance is set to Auto, switches it to whichever of Light or Dark is showing now, so it cannot flip at sunset mid-show. Auto comes back when the show ends. |
@@ -236,6 +243,28 @@ Disturb and says so.
 The shortcuts switch the built-in **Do Not Disturb** Focus, not any custom Focus you have
 made. Whatever that Focus allows through — people or apps you have allowed in System Settings
 → Focus → Do Not Disturb — still gets through, so check its allow list on the show machine.
+
+## Keeping other apps off the PA
+
+*Coming in v0.5.0, macOS 26 or later.* When the Mac's output feeds a PA, Outlook's new-mail
+chime or a browser tab is one click away from the audience. With **Mute apps not allowed to
+play** ticked, every app is silent during the show except the ones ticked under **Allowed to
+Play** in the menu: your show app, and anything else that should be heard. The menu lists the
+apps that are open, marks the ones playing sound right now, and remembers your choices. An
+allowed app opened after the show starts is heard straight away.
+
+- **The muting catches each sound as it starts.** A sound that is already playing when the show
+  starts, such as a browser tab or music, carries on until it stops. The note at the start of a
+  show names those apps: pause them, or tick them if they belong in the show.
+- **Tick the show app before doors.** Ticking or unticking mid-show works, but it lets through
+  any muted sound that happens to be playing at that moment, until that sound stops.
+- **Apps that send sound to their own interface** (QLab, a DAW) are muted too unless ticked.
+  Muting is per app, not per output.
+- **Nothing is turned down.** The output's volume and mute are never touched, and if Show Mode
+  quits or crashes every app is heard again straight away: the failure is lost protection, never
+  a silent show.
+- macOS asks for no permission and shows no recording dot for this: Show Mode never listens to
+  the sound it mutes.
 
 ## Privacy dots
 

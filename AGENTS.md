@@ -76,6 +76,18 @@ Invariants for anyone (human or agent) changing this repo.
   ControlCenter applies it at once: check the TCP 7000 listener, not the key. The misspelling
   CIS documents (`AirplayRecieverEnabled`) changes nothing on 26, even after a ControlCenter
   restart; the guard writes both for older macOS.
+- **Muting other apps (`AudioMute`, macOS 26+)** is one private global process tap with
+  `muteBehavior = .muted` that nothing reads, excluding the allowed apps by `bundleIDs`: no TCC
+  prompt, no privacy dot, and coreaudiod drops it when Show Mode dies, so a crash un-mutes rather
+  than silencing a show. **A muting tap only takes hold of sound that starts after it exists**
+  (recorded, macOS 26.4.1): a sound already playing carries on — global, device-specific and
+  named-process taps alike — and swapping taps lets every muted sound that is still playing
+  through. So never swap taps for a process launch (bundle IDs cover it), only for an allow-list
+  change or a new helper id. Setting `kAudioTapPropertyDescription` on a live tap answers
+  `'!hog'`. **Test it by recording, not by ear:** make a loopback device the default output
+  (Pro Tools Audio Bridge 2-A on Allan's Mac), record its input with `sox -t coreaudio`, play
+  sine tones (440 Hz not allowed, 1 kHz allowed) and measure each with a Goertzel filter; an
+  allowed test app needs a real bundle id, as command-line players have none.
 - **Restarts cannot be refused from Show Mode.** A guard that returned `.terminateCancel` for a
   quit Apple Event with `keyAEQuitReason` was built and removed (1bb3ab0, reverted): on a real
   restart it logged its refusal and macOS restarted anyway. loginwindow's log (`log show

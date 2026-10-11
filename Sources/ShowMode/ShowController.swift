@@ -11,6 +11,7 @@ final class ShowController {
     let layout = DisplayLayout()
     private let sleep = SleepAssertion()
     private let activity = UserActivity()
+    let audioMute = AudioMute()
     private var watch: Timer?
     private var lastSessions: [String] = []
     /// Messages from the last engage worth showing (a guard that could not apply), or from a
@@ -77,6 +78,16 @@ final class ShowController {
 
         if s.isOn(.systemSounds), !SystemSounds.engage() {
             warnings.append("System sounds may still play: macOS did not take the change")
+        }
+        if s.isOn(.muteOtherApps) {
+            let playing = AudioMute.playingNotAllowed(s.allowedAudioApps)
+            if !audioMute.start(allowing: s.allowedAudioApps) {
+                warnings.append("Other apps not muted: it needs macOS 26 or later")
+            } else if !playing.isEmpty {
+                // The mute only takes hold of sounds that start after it.
+                warnings.append("Still heard until they stop: \(Self.list(playing)) (pause them, or tick them under Allowed to Play)")
+                ShowLog.note("audio: playing at the start and not allowed: \(playing)")
+            }
         }
         if s.isOn(.crashDialogs) { Interruptions.engageCrashDialogs() }
         if s.isOn(.airplayReceiver) { Interruptions.engageAirPlayReceiver() }
@@ -194,6 +205,7 @@ final class ShowController {
         layout.stop()
         sleep.release()
         activity.stop()
+        audioMute.stop()
         watch?.invalidate()
         watch = nil
         Interruptions.stopClosingKeyboardSetup()

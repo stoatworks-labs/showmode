@@ -48,6 +48,8 @@ struct ShowModeMain {
         print("AirPlay:         \(Interruptions.airplayReceiver.map { "\($0.key)=\($0.read() ?? "unset")" })")
         print("Stage Manager:   \((Interruptions.stageManager.read() as? Bool) == true)")
         print("Game Mode:       \(GameMode.tool.flatMap(GameMode.policy) ?? "no Xcode")")
+        print("Allowed to play: \(Settings.shared.allowedAudioApps)")
+        print("Playing now:     \(AudioMute.players().filter(\.playing).map { $0.bundleID.isEmpty ? "pid \($0.pid)" : $0.bundleID })")
         print("Sparkle apps:    \(AppUpdaters.sparkleApps().map(\.name))")
         print("Syncthing:       \(Syncthing.api().map { $0.base.absoluteString } ?? "not set up")")
         for (name, list) in [("Media analysis", Paused.mediaAnalysis), ("Spotlight", Paused.spotlight)] {
@@ -214,6 +216,49 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func toggleHide() { Settings.shared.hideOnBlocked.toggle() }
+
+    /// Allows or stops allowing an app's sound; mid-show the muting follows at once.
+    @objc private func toggleAllowed(_ sender: NSMenuItem) {
+        guard let id = sender.representedObject as? String else { return }
+        var allowed = Settings.shared.allowedAudioApps
+        if let i = allowed.firstIndex(of: id) { allowed.remove(at: i) } else { allowed.append(id) }
+        Settings.shared.allowedAudioApps = allowed
+        if show.audioMute.active { show.audioMute.update(allowing: allowed) }
+    }
+
+    /// Running apps, and allowed ones that are not running, each ticked if allowed and marked
+    /// if it is playing sound right now.
+    private func allowedToPlayMenu() -> NSMenu {
+        let m = NSMenu()
+        let allowed = Settings.shared.allowedAudioApps
+        let playing = Set(AudioMute.players().filter(\.playing).map(\.bundleID))
+        var apps: [(id: String, name: String)] = []
+        for app in NSWorkspace.shared.runningApplications where app.activationPolicy == .regular {
+            guard let id = app.bundleIdentifier, app.processIdentifier != getpid(),
+                  !apps.contains(where: { $0.id == id }) else { continue }
+            apps.append((id, app.localizedName ?? id))
+        }
+        for id in allowed where !apps.contains(where: { $0.id == id }) {
+            let name = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id)
+                .map { FileManager.default.displayName(atPath: $0.path) } ?? id
+            apps.append((id, name))
+        }
+        for app in apps.sorted(by: { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }) {
+            let isPlaying = playing.contains { AudioMute.isAllowed($0, [app.id]) }
+            let i = NSMenuItem(title: app.name + (isPlaying ? "  ♪ playing" : ""), action: #selector(toggleAllowed(_:)), keyEquivalent: "")
+            i.target = self
+            i.representedObject = app.id
+            i.state = allowed.contains(app.id) ? .on : .off
+            m.addItem(i)
+        }
+        m.addItem(.separator())
+        let note = NSMenuItem(title: Settings.shared.isOn(.muteOtherApps)
+                              ? "Every other app is muted while a show is on"
+                              : "Off: turn on Mute apps not allowed to play", action: nil, keyEquivalent: "")
+        note.isEnabled = false
+        m.addItem(note)
+        return m
+    }
 
     @objc private func grantAccessibility() {
         CursorFence.promptForAccessibility()
@@ -395,6 +440,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let mainItem = NSMenuItem(title: "Main Display", action: nil, keyEquivalent: "")
         mainItem.submenu = mainMenu
         menu.addItem(mainItem)
+
+        let allowedItem = NSMenuItem(title: "Allowed to Play", action: nil, keyEquivalent: "")
+        allowedItem.submenu = allowedToPlayMenu()
+        menu.addItem(allowedItem)
 
         menu.addItem(.separator())
         let guards = NSMenu()
