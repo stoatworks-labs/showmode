@@ -3,19 +3,21 @@
 > **AI-assisted project.** This codebase was created with [Claude](https://claude.com/claude-code)
 > (Anthropic), directed and reviewed by a human author.
 
-A macOS menu-bar app that locks a presentation or playback Mac down for a show, then puts
-every setting back exactly as it was.
+A menu-bar app for the Mac that's running your slides or playback. It stops the Mac doing
+anything clever during the show (going to sleep, popping up notifications, flinging Mission
+Control onto the projector, letting the cursor wander onto the LED wall), then puts every
+setting back how you had it.
 
 **⌃⌥⌘S** starts/ends show mode · **⌃⌥⌘F** pauses the cursor fence (to reach a show screen deliberately)
 
-> **Field proven** — run on real events, not just on the bench. The power, screen-saver,
-> hot-corner, Mission Control, True Tone and Night Shift guards and every restore path were
-> also run end to end on macOS 26.4, and the cursor fence (with and without Accessibility), the
-> display lock, Do Not Disturb and appearance pinning on a real two-screen setup. Still
-> unchecked: the display lock with AirPlay, Sidecar or DisplayLink screens. The two guards new
-> in v0.4.0, privacy dots and swipe between Spaces, have not yet been run on a show, and the
-> guards new in v0.5.0 (system sounds, muting other apps, background work, interruptions, remote
-> sessions) have only been checked on the bench. Full details in the [user guide](docs/USER-GUIDE.md).
+> **Field proven.** It's been used on real events, not just on my desk. On macOS 26.4 I've also
+> run the power, screen saver, hot corner, Mission Control, True Tone and Night Shift guards and
+> every restore path end to end, and the cursor fence (with and without Accessibility), the
+> display lock, Do Not Disturb and appearance pinning on a real two-screen setup. Not tried yet:
+> the display lock with AirPlay, Sidecar or DisplayLink screens. v0.4.0's privacy dots and swipe
+> between Spaces guards haven't done a show yet, and v0.5.0's new guards (system sounds, muting
+> other apps, background work, interruptions, remote sessions) have only been checked on the
+> bench. All the details are in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 
@@ -81,14 +83,16 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 ## Cursor fence
 
 Tick the show screens under **Keep cursor off**. With Accessibility granted, an event tap
-rewrites any mouse move that would land on one to the nearest point on an allowed screen, so the
-cursor never gets in. Without it, a 120 Hz poll warps it back, and the cursor is hidden while it
-is near a blocked screen so the crossing is never drawn. The menu will not let you block the
-last unblocked screen (so a single-display Mac cannot be fenced at all), and blocking the main
-display — the menu bar and Dock — asks first. If every screen still ends up blocked, or the only
-allowed one is unplugged, the fence stands down rather than trap the cursor.
+rewrites any mouse move that would land on one so it ends up at the nearest point on a screen
+you're allowed, and the cursor never gets in. Without Accessibility, a 120 Hz poll warps it
+back, and the cursor is hidden while it's near a blocked screen so nobody sees it cross. The
+menu won't let you block the last unblocked screen (so a single-display Mac can't be fenced at
+all), and it asks before you block the main display, the one with the menu bar and Dock. If
+every screen somehow still ends up blocked, or the only allowed one gets unplugged, the fence
+stands down rather than trap the cursor somewhere you can't reach it.
 
-Screens are remembered by vendor/model/serial, so the choice survives replugging and reboots.
+Screens are remembered by vendor, model and serial, so your choice survives replugging and
+reboots.
 
 ## Display arrangement
 
@@ -96,12 +100,14 @@ The main display is made main by moving it to the origin of the global display s
 (`CGConfigureDisplayOrigin`, every display shifted by the same amount, so the arrangement is
 kept). A reconfiguration callback, debounced by a second, re-applies it and splits new mirrors
 (`CGConfigureDisplayMirrorOfDisplay(…, kCGNullDirectDisplay)`); displays already mirrored at
-start are left alone. Four corrections in twenty seconds and it stops. The previous main
-display is journalled and restored. Activity goes to `~/Library/Logs/ShowMode.log`.
+start are left alone. If it has to put things right four times in twenty seconds it gives
+up, on the basis that something else clearly wants the displays more than it does. The
+previous main display is journalled and restored. Activity goes to `~/Library/Logs/ShowMode.log`.
 
 ## Privacy dots
 
-No app can hide the microphone/camera/screen-recording dots. Show Mode reports them instead:
+No app can hide the microphone, camera and screen-recording dots, so Show Mode tells you
+about them instead.
 WindowServer draws each dot as a window named `StatusIndicator` (readable without Screen
 Recording access), which gives the screens showing one; CoreAudio process objects
 (`kAudioProcessPropertyIsRunningInput`, macOS 14.2+) name the app on the microphone, and
@@ -111,8 +117,9 @@ See the [user guide](docs/USER-GUIDE.md#privacy-dots) for the one-time setup.
 
 ## Background work
 
-A show Mac left untouched for hours looks idle, which is when macOS and other
-apps start their maintenance. Processes that may only be paused, never switched off, go to a
+A show Mac left alone for hours looks idle, and idle is exactly when macOS and every other
+app decide it's time for a spot of housekeeping. Processes that can only be paused, never
+switched off, go to a
 **sweeper**: a small shell loop that sends SIGSTOP to every process with one of a few exact names
 every two seconds (so copies launchd starts mid-show are caught), and SIGCONT to them all when the
 show ends. It learns that Show Mode has gone — crash and `kill -9` included — from its end of a
@@ -122,16 +129,16 @@ root, so that sweeper starts from the show's one admin prompt, listens on a FIFO
 open, and has its script passed inline rather than from a file anyone could rewrite. At the end
 Show Mode reads back what it paused and asks root to resume anything still paused.
 
-What is deliberately left alone: `mds` and `mds_stores` (stopping them hangs every search),
+What I leave alone on purpose: `mds` and `mds_stores` (stopping them hangs every search),
 `trustd`, `mobileassetd`, `softwareupdated`, XProtect and the iCloud daemons, real-time
 protection in any antivirus, `launchctl` on Apple services (SIP refuses it, or it does not stick),
 and Apple Intelligence (turning it off can delete its models and download them again).
 
 ## Pre-show checks
 
-What no app can safely switch off is listed under **Pre-show Checks**, each
-with the one thing to do: a macOS update waiting (someone choosing *Install Tonight* restarts the
-Mac overnight), updates or Microsoft AutoUpdate managed by an organisation, Dropbox, Google Drive
+Some things no app can safely switch off, so **Pre-show Checks** lists them, each with the one
+thing you need to do: a macOS update waiting (someone choosing *Install Tonight* restarts the
+Mac overnight, which is a lovely surprise at call time), updates or Microsoft AutoUpdate managed by an organisation, Dropbox, Google Drive
 and OneDrive running (they can only be paused from their own menus; Dropbox keeps syncing after
 it quits), backup apps with schedules (Arq, Carbon Copy Cloner, Backblaze, ChronoSync), security
 software that opens its own windows or scans on a schedule (Intego, Sophos, Trend Micro, Norton,
@@ -142,28 +149,31 @@ runs.
 
 ## Notifications
 
-macOS has no public Focus API. **Setup → Install Do Not Disturb shortcuts** generates and signs
-"Show Mode Focus On/Off" (one *Set Focus* action each); Shortcuts asks you to add them once. After
-that show mode runs them with `shortcuts run`.
+macOS doesn't let apps switch Focus, so Show Mode cheats. **Setup → Install Do Not Disturb
+shortcuts** makes and signs two Shortcuts, "Show Mode Focus On/Off" (one *Set Focus* action
+each), and Shortcuts asks you to add them once. After that Show Mode runs them with
+`shortcuts run`.
 
 ## Restoring
 
-Every change is journalled (`~/Library/Application Support/ShowMode/journal.plist`) *before* it
-is made, with the value it replaced, and restore undoes only what show mode changed. Ending show
-mode, quitting, SIGTERM/SIGINT/SIGHUP and relaunching after a crash all restore.
+Every change goes in a journal (`~/Library/Application Support/ShowMode/journal.plist`)
+*before* it's made, along with the value it replaced, and restoring only undoes what Show Mode
+changed. Ending show mode, quitting, SIGTERM/SIGINT/SIGHUP and relaunching after a crash all
+restore.
 
-Everything that needs root shares one password prompt at the start and one at the end. Each
-command runs whatever happened to the one before it. Cancelling the prompt at the start changes
-nothing; a command that fails keeps its journal entry, so the end writes the original back. At
-the end, anything whose command fails or whose prompt is cancelled stays in the journal, the
-menu offers **Finish Restoring**, and the next launch tries again. Syncthing folders that could
-not be resumed (Syncthing not running yet at login) are retried the same way.
+Everything that needs root shares one password prompt at the start and one at the end, and
+each command runs whatever happened to the one before it. Cancelling the prompt at the start
+changes nothing. A command that fails keeps its journal entry, so the end writes the original
+back. At the end, anything whose command fails or whose prompt gets cancelled stays in the
+journal, the menu offers **Finish Restoring**, and the next launch has another go. Syncthing
+folders that couldn't be resumed (because Syncthing wasn't running yet at login) get retried
+the same way.
 
 ## Automation
 
 `open showmode://on` · `off` · `toggle` · `fence-on` · `fence-off` · `wallpaper-black` ·
 `wallpaper-restore` — e.g. from Companion or a
-show-control script. `ShowMode --status` prints what it sees (read-only).
+show-control script. `ShowMode --status` prints what it can see without changing anything.
 
 ## Build
 
@@ -171,5 +181,5 @@ show-control script. `ShowMode --status` prints what it sees (read-only).
 scripts/build-app.sh
 ```
 
-Universal `dist/Show Mode.app`, Developer ID–signed when that identity is in the keychain (a
-stable signature keeps the Accessibility grant across rebuilds).
+That builds a universal `dist/Show Mode.app`, Developer ID-signed if that identity is in the
+keychain (a stable signature means the Accessibility grant survives rebuilds).
