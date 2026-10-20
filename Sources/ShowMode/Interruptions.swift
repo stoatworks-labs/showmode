@@ -63,40 +63,18 @@ enum Interruptions {
 
     // MARK: ⌘Space
 
-    /// Spotlight's two shortcuts, ⌘Space (64) and ⌥⌘Space (65), switched off in WindowServer
-    /// itself through SkyLight, which applies at once and is not saved, so a Mac that restarts
-    /// mid-show gets them back anyway. Looked up at runtime like the other private calls.
-    private enum SymbolicHotKeys {
-        typealias IsEnabled = @convention(c) (Int32) -> Bool
-        typealias SetEnabled = @convention(c) (Int32, Bool) -> Int32
-        private static let handle = dlopen("/System/Library/PrivateFrameworks/SkyLight.framework/SkyLight", RTLD_NOW)
-        static let isEnabled: IsEnabled? = dlsym(handle, "CGSIsSymbolicHotKeyEnabled")
-            .map { unsafeBitCast($0, to: IsEnabled.self) }
-        static let setEnabled: SetEnabled? = dlsym(handle, "CGSSetSymbolicHotKeyEnabled")
-            .map { unsafeBitCast($0, to: SetEnabled.self) }
-    }
-
+    /// Spotlight's two shortcuts, ⌘Space (64) and ⌥⌘Space (65).
     static let spotlightHotKeys: [Int32] = [64, 65]
 
     /// The Spotlight shortcuts that are on now; nil if SkyLight has no such call.
-    static var spotlightKeysOn: [Int32]? {
-        guard let isEnabled = SymbolicHotKeys.isEnabled else { return nil }
-        return spotlightHotKeys.filter { isEnabled($0) }
-    }
+    static var spotlightKeysOn: [Int32]? { SymbolicHotKeys.on(spotlightHotKeys) }
 
     /// Returns false if the shortcuts could not be switched off.
     static func engageSpotlightKeys() -> Bool {
-        guard let on = spotlightKeysOn, let set = SymbolicHotKeys.setEnabled else { return false }
-        guard !on.isEmpty else { return true }
-        if Journal.shared["spotlightKeys"] == nil { Journal.shared["spotlightKeys"] = on.map(Int.init) }
-        on.forEach { _ = set($0, false) }
-        return spotlightKeysOn?.isEmpty == true
+        SymbolicHotKeys.disable(spotlightHotKeys, journalKey: "spotlightKeys")
     }
 
-    static func restoreSpotlightKeys() {
-        guard let keys = Journal.shared["spotlightKeys"] as? [Int], let set = SymbolicHotKeys.setEnabled else { return }
-        keys.forEach { _ = set(Int32($0), true) }
-    }
+    static func restoreSpotlightKeys() { SymbolicHotKeys.restore(journalKey: "spotlightKeys") }
 
     // MARK: Stage Manager
 

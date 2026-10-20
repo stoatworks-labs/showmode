@@ -12,6 +12,10 @@ struct ShowModeMain {
             printStatus()
             return
         }
+        if CommandLine.arguments.contains(MissionControl.stateFlag) {
+            MissionControl.printState()
+            return
+        }
         // The root fan helper (see FanHold): never an app.
         if CommandLine.arguments.count > 1, CommandLine.arguments[1] == "--fans" {
             exit(FanHold.main(Array(CommandLine.arguments.dropFirst(2))))
@@ -50,6 +54,7 @@ struct ShowModeMain {
         print("Updates managed: \(SoftwareUpdate.managed)")
         print("AWDL up:         \(AWDL.up.map { "\($0)" } ?? "no interface")")
         print("⌘Space keys on:  \(Interruptions.spotlightKeysOn.map { "\($0)" } ?? "unavailable")")
+        print("Mission Control: keys on \(MissionControl.keysOn.map { "\($0)" } ?? "unavailable"), forced off \(MissionControl.forced)")
         print("Crash reports:   \((Interruptions.crashNotifications.read() as? Bool) == true ? "notifications" : "dialogs")")
         print("AirPlay:         \(Interruptions.airplayReceiver.map { "\($0.key)=\($0.read() ?? "unset")" })")
         print("Stage Manager:   \((Interruptions.stageManager.read() as? Bool) == true)")

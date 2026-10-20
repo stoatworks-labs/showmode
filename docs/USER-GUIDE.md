@@ -11,7 +11,8 @@ and keeps the mouse cursor off the screens the audience is looking at.
 > **Checked on the bench:** I ran the power, screen saver, hot corner, Mission Control, True
 > Tone and Night Shift guards end to end on a MacBook Pro running macOS 26.4, and checked
 > restoring three ways: ending show mode, killing the app outright and relaunching it, and
-> stopping it with SIGTERM. Every setting came back. The wallpaper blackout was checked the
+> stopping it with SIGTERM. Every setting came back (but see Mission Control below: coming back
+> isn't the same as having worked). The wallpaper blackout was checked the
 > same three ways on macOS 26.4.1, but only on its own (not as part of a full show-mode start)
 > and only on one display.
 >
@@ -90,6 +91,21 @@ and keeps the mouse cursor off the screens the audience is looking at.
 > byte of code, an edited Info.plist or another developer's signature. **Not checked:**
 > everything that needs the password, which is everything that actually moves a fan.
 >
+> **Mission Control (not released yet, checked 2026-10-20 on macOS 26.4.1):** the Mission
+> Control guard in v0.5.0 and earlier stopped nothing on this macOS. The bench check above
+> watched its settings go off and come back, not Mission Control staying shut, and the Dock
+> ignores the setting it writes unless that setting is forced. With it on, ⌃↑ and ⌃↓ still
+> opened Mission Control and App Exposé, and so did a Logitech MX Master's buttons through
+> Logi Options+. With the new shortcut switch-off, ⌃↑, ⌃↓, the Mission Control key and F11
+> opened nothing, and all four worked again afterwards. With the setting forced (the new admin
+> guard's own start and end steps, run on their own with the password), nothing opened Mission
+> Control, App Exposé or Show Desktop, whether asked the way Logi Options+ asks or from the
+> keyboard. At the end the file and its folders went and App Exposé opened again. **Not
+> checked:** a full show start and end with the new guards (a real show was running on that
+> Mac, so only their own steps were run); the mouse button pressed by hand (the test sent the
+> Dock the same request Logi Options+ sends); the trackpad gestures under the forced setting; a
+> Mac with managed Dock settings of its own; and macOS before 26.
+>
 > **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
@@ -145,7 +161,8 @@ the next start.
 | Run the fans at full speed (admin) | **Off by default.** Every fan at its top speed for the whole show. See [Fans](#fans). |
 | Keep the fans at their quietest (admin) | **Off by default.** Every fan at its slowest, for a room quiet enough to hear them. See [Fans](#fans). |
 | Disable hot corners | Sets all four corners to do nothing, and restarts the Dock so it takes effect. |
-| Disable Mission Control, Exposé & gestures | Turns off Mission Control and App Exposé, including their keys, and the swipe and pinch gestures for Mission Control, App Exposé, Show Desktop and Launchpad. Restarts the Dock. |
+| Disable Mission Control, Exposé & gestures | Turns off the keys for Mission Control, App Exposé and Show Desktop (⌃↑, ⌃↓, F11 and the Mission Control key, with or without ⇧, ⌃, ⌥ or ⌘), and the swipe and pinch gestures for Mission Control, App Exposé, Show Desktop and Launchpad. Restarts the Dock. It can't stop an app that opens Mission Control itself, which is what mouse software does: see the next one. |
+| Stop mouse & other apps opening Mission Control (admin) | **Off by default.** Switches Mission Control off in the Dock itself, so a mouse button set to Mission Control or App Exposé does nothing either. Asks for your password at the start and the end. See [Mission Control and mouse buttons](#mission-control-and-mouse-buttons). |
 | Disable swipe between Spaces & full-screen apps | Stops a sideways three- or four-finger swipe on the trackpad (two fingers on a Magic Mouse) sliding the show off to another desktop or full-screen app. A three-finger swipe set to *Swipe between pages* is left alone, since it only goes back and forward inside an app. Your swipe settings come back when the show ends. |
 | Disable click-wallpaper-to-show-desktop | Stops a stray click on the desktop sweeping every window aside. |
 | Black out desktop wallpaper | Paints the wallpaper black on every screen, including one plugged in mid-show, so an extended desktop never shows your wallpaper on the projector. The original comes back exactly, dynamic and aerial wallpapers and every Space included. |
@@ -178,6 +195,22 @@ the next start.
 
 Starting show mode restarts the Dock once, so the Dock and the menu bar flicker for a
 moment. Do it before doors rather than during a cue.
+
+## Mission Control and mouse buttons
+
+If your mouse has a button set to Mission Control or App Exposé (Logitech's MX mice come that
+way: the thumb button, and swiping with it held down), the ordinary Mission Control guard won't
+stop it. Logi Options+ doesn't press a shortcut for you. It asks the Dock directly, and the Dock
+does as it's told. The setting that's meant to switch Mission Control off only counts when it
+comes from managed settings, the kind a company's IT department installs with a profile.
+Written by anyone else, the Dock reads it and carries on regardless.
+
+**Stop mouse & other apps opening Mission Control** writes that setting where managed settings
+live (`/Library/Managed Preferences`), which is why it wants your password, and restarts the
+Dock. After that nothing opens Mission Control, App Exposé or Show Desktop, from the mouse or
+the keyboard. At the end of the show the file goes, along with any folder Show Mode made for
+it, and Mission Control comes back. If your Mac already has managed settings for the Dock,
+they're left alone, and a note warns that the mouse may still get through.
 
 ## Keeping the cursor off the show screens
 

@@ -17,7 +17,9 @@ setting back how you had it.
 > the display lock with AirPlay, Sidecar or DisplayLink screens. v0.4.0's privacy dots and swipe
 > between Spaces guards haven't done a show yet, and v0.5.0's new guards (system sounds, muting
 > other apps, background work, interruptions, remote sessions) have only been checked on the
-> bench. All the details are in the [user guide](docs/USER-GUIDE.md).
+> bench. One correction: up to v0.5.0 the Mission Control guard didn't actually stop Mission
+> Control on macOS 26, because the Dock ignores the setting it wrote. The fix is on main and not
+> released yet. All the details are in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 
@@ -50,7 +52,8 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Fans *(off by default, Apple silicon)* | every fan fixed at its maximum (full speed) or minimum (quiet) through the SMC: mode key `F0Md` to 1 and target `F0Tg` to `F0Mx` or `F0Mn`, with the test flag `Ftst` set first where the SMC asks for it (M1–M4). Writing needs root, so a root helper holds them for the show — Show Mode's own executable, run from a copy of the bundle in a root-only directory once `codesign` has checked the copy against the running app's designated requirement. It hands the fans back to macOS at the end or as soon as Show Mode goes away. Quiet hands them back while macOS reports the Mac hot enough to slow down (`thermalState` serious) and takes them again after five cool minutes. Left alone if another app already has them — admin prompt |
 | Screen saver | `com.apple.screensaver idleTime 0` (current host) |
 | Hot corners | all four `wvous-*` set to no-op, Dock restarted |
-| Mission Control / App Exposé / gestures | `mcx-expose-disabled`, the four Dock gesture keys, Dock restarted |
+| Mission Control / App Exposé / gestures | the four Dock gesture keys, Dock restarted, and Mission Control's shortcuts off in WindowServer through SkyLight `CGSSetSymbolicHotKeyEnabled`, as ⌘Space is: ⌃↑ ⌃↓ and their ⇧ twins (32–35), F11 Show Desktop (36, 37) and the Mission Control key with each modifier (108–117). It also writes `mcx-expose-disabled`, which macOS 26's Dock ignores unless it's forced (next row) |
+| Mission Control from mouse apps *(off by default)* | Logi Options+ and friends open Mission Control with `CoreDockSendNotification` (`com.apple.expose.awake`, `com.apple.expose.front.awake`), straight to the Dock, so no shortcut or event guard sees it. The Dock obeys `mcx-expose-disabled` only when `CFPreferencesAppValueIsForced` says so, so this writes it where a configuration profile would, `/Library/Managed Preferences/<user>/com.apple.dock.plist`, and restarts the Dock; read back from a fresh process, since one that has read the Dock's settings keeps its first answer. The file and any folder Show Mode made go at the end. Left alone where the Dock already has managed settings — admin prompt |
 | Swipe between Spaces | `Trackpad{Three,Four}FingerHorizSwipeGesture` and the Magic Mouse's `MouseTwoFingerHorizSwipeGesture`, only where set to swipe between full-screen apps (2 → 0), then `activateSettings -u` so the trackpad driver rereads them; swipe between pages is left alone |
 | Click wallpaper to show desktop | `com.apple.WindowManager EnableStandardClickToShowDesktop` |
 | Desktop wallpaper | black on every screen (and any plugged in mid-show); the WallpaperAgent store is copied and put back, so dynamic/aerial wallpapers and every Space return exactly |

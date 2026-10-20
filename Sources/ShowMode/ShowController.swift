@@ -19,6 +19,8 @@ final class ShowController {
     /// Messages from the last engage worth showing (a guard that could not apply), or from a
     /// restore that could not put everything back.
     private(set) var warnings: [String] = []
+    /// Set by an engage that forced the Dock's Mission Control key, which the Dock reads at launch.
+    private var exposeForced = false
 
     var onChange: (() -> Void)?
 
@@ -27,6 +29,7 @@ final class ShowController {
     func engage() {
         guard !engaged else { return }
         warnings = []
+        exposeForced = false
         Journal.shared.load()
         Journal.shared["engaged"] = Date()
 
@@ -45,13 +48,18 @@ final class ShowController {
             }
         }
         if s.isOn(.missionControl) {
+            // macOS 26.4.1's Dock ignores this unless it is forced (MissionControl); kept for
+            // older macOS.
             dock = PrefKey(domain: "com.apple.dock", key: "mcx-expose-disabled").override(true) || dock
             for key in ["showMissionControlGestureEnabled", "showAppExposeGestureEnabled",
                         "showDesktopGestureEnabled", "showLaunchpadGestureEnabled"] {
                 dock = PrefKey(domain: "com.apple.dock", key: key).override(false) || dock
             }
+            if !MissionControl.engageKeys() {
+                warnings.append("Mission Control's shortcuts may still work: macOS did not take the change")
+            }
         }
-        if dock { Shell.killall("Dock") }
+        if dock || exposeForced { Shell.killall("Dock") }
 
         if s.isOn(.spaceSwipe), !SpaceSwipe.engage() {
             warnings.append("Swipe between Spaces is still on: the trackpad settings could not be applied")
@@ -166,6 +174,18 @@ final class ShowController {
                 warnings.append("Fans left alone: the fan helper could not be set up")
             }
         }
+        var forcedStep: Int?
+        if s.isOn(.missionControlApps) {
+            switch MissionControl.engage() {
+            case .step(let a):
+                forcedStep = admin.count
+                admin.append(a)
+            case .alreadyForced:
+                break
+            case .managed:
+                warnings.append("Mission Control left to this Mac's managed settings: mouse apps may still open it")
+            }
+        }
         if s.isOn(.timeMachine) { admin += TimeMachine.engage() }
         if s.isOn(.softwareUpdate) {
             if SoftwareUpdate.managed {
@@ -217,6 +237,13 @@ final class ShowController {
         }
 
         // Read back what can report success without taking effect.
+        if let i = forcedStep {
+            // The Dock rereads it at launch, whatever the read-back says.
+            exposeForced = true
+            if !failed.contains(i), !MissionControl.waitForced(true, seconds: 3) {
+                warnings.append("Apps may still open Mission Control: macOS did not take the managed setting")
+            }
+        }
         if let w = TimeMachine.confirmEngaged() { warnings.append(w) }
         if spotlight, Sweeper.root.running, !Sweeper.confirmStarted(Paused.spotlight) {
             warnings.append("Spotlight indexing may not be paused: no indexing process stopped")
@@ -254,7 +281,7 @@ final class ShowController {
         guard Journal.shared.exists else { engaged = false; warnings = []; onChange?(); return }
 
         var admin = [PMSet.restoreLowPower(), PMSet.restoreLidSleep(), TimeMachine.restore(),
-                     SoftwareUpdate.restore()].compactMap { $0 }
+                     SoftwareUpdate.restore(), MissionControl.restore()].compactMap { $0 }
         admin += resumeSteps()
         // The helper hands the fans back itself; root does it only if it has not.
         if Journal.shared["fans"] != nil, !FanHold.waitForRelease() {
@@ -280,8 +307,18 @@ final class ShowController {
             notes.append("Time Machine (it needs Full Disk Access)")
         }
 
+        // The file is gone; the Dock sees that once cfprefsd has, and it rereads at launch.
+        var dock = false
+        if Journal.shared["forcedExpose"] != nil, !unrestored.contains("forcedExpose") {
+            dock = true
+            if MissionControl.releaseForced() {
+                unrestored.insert("forcedExpose")
+                notes.append("Mission Control (macOS still holds it off)")
+            }
+        }
+
         let domains = Prefs.restoreAll()
-        if domains.contains("com.apple.dock") { Shell.killall("Dock") }
+        if dock || domains.contains("com.apple.dock") { Shell.killall("Dock") }
         if domains.contains("com.apple.WindowManager") { Shell.killall("WindowManager") }
         if !domains.isDisjoint(with: SpaceSwipe.domains) { SpaceSwipe.activate() }
 
@@ -290,6 +327,7 @@ final class ShowController {
         Focus.restore()
         SystemSounds.restore()
         Interruptions.restoreSpotlightKeys()
+        MissionControl.restoreKeys()
         ColourShift.restoreNightShift()
         ColourShift.restoreTrueTone()
         ColourShift.restoreAppearance()

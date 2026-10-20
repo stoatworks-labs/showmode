@@ -11,6 +11,7 @@ enum Guard: String, CaseIterable {
     case screenSaver
     case hotCorners
     case missionControl
+    case missionControlApps
     case spaceSwipe
     case clickToShowDesktop
     case stageManager
@@ -51,6 +52,7 @@ enum Guard: String, CaseIterable {
         case .screenSaver: return "Disable screen saver"
         case .hotCorners: return "Disable hot corners"
         case .missionControl: return "Disable Mission Control, Exposé & gestures"
+        case .missionControlApps: return "Stop mouse & other apps opening Mission Control (admin)"
         case .spaceSwipe: return "Disable swipe between Spaces & full-screen apps"
         case .clickToShowDesktop: return "Disable click-wallpaper-to-show-desktop"
         case .stageManager: return "Turn off Stage Manager"
@@ -85,8 +87,8 @@ enum Guard: String, CaseIterable {
 
     var defaultOn: Bool {
         switch self {
-        case .lidSleep, .fansFull, .fansQuiet, .timeMachine, .spotlight, .softwareUpdate, .awdl, .userActivity, .gameMode,
-             .muteOtherApps:
+        case .lidSleep, .fansFull, .fansQuiet, .missionControlApps, .timeMachine, .spotlight, .softwareUpdate, .awdl,
+             .userActivity, .gameMode, .muteOtherApps:
             return false
         default:
             return true
@@ -96,8 +98,8 @@ enum Guard: String, CaseIterable {
     /// How the menu groups them.
     static let sections: [(title: String, guards: [Guard])] = [
         ("Power", [.sleep, .lidSleep, .lowPower, .screenSaver, .fansFull, .fansQuiet]),
-        ("Screen & input", [.hotCorners, .missionControl, .spaceSwipe, .clickToShowDesktop, .stageManager,
-                            .spotlightKey, .wallpaper]),
+        ("Screen & input", [.hotCorners, .missionControl, .missionControlApps, .spaceSwipe, .clickToShowDesktop,
+                            .stageManager, .spotlightKey, .wallpaper]),
         ("Interruptions", [.notifications, .systemSounds, .muteOtherApps, .crashDialogs, .airplayReceiver, .keyboardSetup]),
         ("Colour", [.nightShift, .trueTone, .autoAppearance, .colourApps]),
         ("Displays", [.cursorFence, .displayLayout, .privacyDots]),

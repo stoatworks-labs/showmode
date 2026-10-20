@@ -100,6 +100,25 @@ Invariants for anyone (human or agent) changing this repo.
   way to protect every app would be a separate normal helper app launched at show start (newest,
   so asked first), relaunched whenever another app launches; declined, for its Dock icon and an
   unverified gain against an Install Tonight restart.
+- **Mission Control is off only when its key is forced.** The Dock reads `mcx-expose-disabled`
+  and then asks `CFPreferencesAppValueIsForced` (macOS 26.4.1 Dock, disassembled), so a
+  user-domain write does nothing: ⌃↑, ⌃↓ and `CoreDockSendNotification`
+  (`com.apple.expose.awake`, `com.apple.expose.front.awake`, `com.apple.showdesktop.awake`, which
+  Logi Options+ calls for its mouse buttons) all still opened it, and v0.5.0's guard blocked
+  nothing. Forced means a root-written plist in `/Library/Managed Preferences/<user>/`. Write it
+  with `plutil`, never `defaults write`: as root that reported success and wrote nothing there,
+  and after that attempt cfprefsd kept reporting the key forced once the file had gone, until
+  this user's cfprefsd agent was restarted (`MissionControl.releaseForced` does that only when
+  it must). Read the forced state from a fresh process (`--mission-control-state`): a process
+  that has read the Dock's preferences keeps its first answer, `CFPreferencesAppSynchronize` or
+  not. The WindowManager keys `EnableMissionControl`, `EnableAppExpose` and `EnableShowDesktop`,
+  which the Dock registers at launch, change nothing.
+- **Testing Mission Control without eyes:** fire the Dock notification (dlsym
+  `CoreDockSendNotification`) or post the key, then compare the Dock's on-screen windows
+  (`CGWindowListCopyWindowInfo`, full-screen layers 18 and 20) before and after; send it again,
+  or Escape, to close what opened. A harness built from `MissionControl.swift`, `Journal.swift`,
+  `Prefs.swift` and `ShowLog.swift` runs the real steps without touching a running show: set
+  `CFFIXED_USER_HOME` to a scratch folder (`HOME` alone does not move Application Support).
 - **Dead ends on macOS 26.4.1:** `com.apple.locationd` cannot be written even as root (`Could
   not write domain`), so Location Services cannot be switched off. Keyboard Setup Assistant
   quits at once when opened by hand, so its guard needs a real unrecognised keyboard to test.
