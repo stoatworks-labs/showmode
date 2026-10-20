@@ -105,5 +105,20 @@ Invariants for anyone (human or agent) changing this repo.
   quits at once when opened by hand, so its guard needs a real unrecognised keyboard to test.
   When a documented key does nothing, diff the preferences around the System Settings switch
   before giving up.
+- **Fans go through the SMC, held by a root helper that is Show Mode itself** (`FanHold`).
+  Writing a fan key needs root and a fixed speed needs holding, so the admin step copies the
+  whole bundle into `/private/var/run/com.stoatworks.showmode.fans` (only root writes there),
+  checks the copy with `codesign --verify --strict --arch arm64 --test-requirement=` against the
+  running app's own designated requirement, and only then runs it with `--fans`. Never run the
+  bundle's own executable as root: the user can rewrite it. A lone copied executable always
+  fails `codesign --verify` (its Info.plist and resources are sealed), hence the whole bundle.
+  Like the sweeper, the helper hands the fans back when its FIFO closes. Up to the M4 a fan's
+  mode key (`F0Md`; `F0md` on some Macs) refuses writes until the test flag `Ftst` is 1; hand
+  back as Stats does: each mode 0, target 0, then `Ftst` 0. Reading needs no root, so read back
+  what the helper did (`ShowMode --status` prints the fans).
+- **A bench copy shares the journal.** It has its own bundle id and defaults, but
+  `Journal.directory` is `~/Library/Application Support/ShowMode` whatever the bundle, and every
+  launch restores a journal it finds. Never launch a bench copy while the installed Show Mode is
+  engaged: it would put back the live show's settings from under it.
 - **The app icon is drawn, not an SF Symbol** — Apple's SF Symbols licence does not allow
   them in app icons. `scripts/make-icon.swift` writes `Resources/AppIcon.icns`.

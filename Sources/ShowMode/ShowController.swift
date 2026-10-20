@@ -14,6 +14,8 @@ final class ShowController {
     let audioMute = AudioMute()
     private var watch: Timer?
     private var lastSessions: [String] = []
+    /// The fan mode the helper took hold of this show, once read back.
+    private var heldFans: Fans.Mode?
     /// Messages from the last engage worth showing (a guard that could not apply), or from a
     /// restore that could not put everything back.
     private(set) var warnings: [String] = []
@@ -149,6 +151,21 @@ final class ShowController {
         var admin: [AdminStep] = []
         if s.isOn(.lowPower), let a = PMSet.engageLowPower() { admin.append(a) }
         if s.isOn(.lidSleep), let a = PMSet.engageLidSleep() { admin.append(a) }
+        var fanStep: Int?
+        let fanMode = s.fanMode
+        if let mode = fanMode {
+            if Journal.shared["fans"] != nil && !Fans.automatic {
+                warnings.append("Fans left alone until the last show's are put back (Finish Restoring)")
+            } else if let why = Fans.unavailable ?? FanHold.cannotStart {
+                warnings.append(why)
+            } else if let a = FanHold.shared.step(mode) {
+                if Journal.shared["fans"] == nil { Journal.shared["fans"] = true }
+                fanStep = admin.count
+                admin.append(a)
+            } else {
+                warnings.append("Fans left alone: the fan helper could not be set up")
+            }
+        }
         if s.isOn(.timeMachine) { admin += TimeMachine.engage() }
         if s.isOn(.softwareUpdate) {
             if SoftwareUpdate.managed {
@@ -179,6 +196,7 @@ final class ShowController {
         guard let failed = Shell.runAsAdmin(admin, prompt: "Show Mode needs your password to change \(labels) for the show.") else {
             for step in admin { step.journalKeys.forEach { Journal.shared[$0] = before[$0] } }
             if sweeperStep != nil { Sweeper.root.close() }
+            if fanStep != nil { FanHold.shared.close() }
             warnings.append("\(labels) unchanged (password prompt cancelled)")
             return
         }
@@ -188,6 +206,11 @@ final class ShowController {
                 admin[i].journalKeys.forEach { Journal.shared[$0] = before[$0] }
                 Sweeper.root.close()
                 warnings.append("\(admin[i].label) unchanged: the pause did not start")
+            } else if i == fanStep {
+                // The copy failed its check, or would not copy: nothing ran.
+                admin[i].journalKeys.forEach { Journal.shared[$0] = before[$0] }
+                FanHold.shared.close()
+                warnings.append("Fans unchanged: the fan helper did not start")
             } else {
                 warnings.append("\(admin[i].label) may be only partly changed: End puts back what was there")
             }
@@ -197,6 +220,18 @@ final class ShowController {
         if let w = TimeMachine.confirmEngaged() { warnings.append(w) }
         if spotlight, Sweeper.root.running, !Sweeper.confirmStarted(Paused.spotlight) {
             warnings.append("Spotlight indexing may not be paused: no indexing process stopped")
+        }
+        if let mode = fanMode, let i = fanStep, !failed.contains(i) {
+            if FanHold.confirmHeld(mode) {
+                heldFans = mode
+                ShowLog.note("fans: held (\(mode.rawValue)): \(Fans.summary)")
+            } else if mode == .quiet && FanHold.hot {
+                warnings.append("The fans stay with macOS for now: the Mac is running hot (quiet once it cools)")
+                heldFans = mode
+            } else {
+                warnings.append("The fans may not be held: macOS did not hand them over")
+                ShowLog.note("fans: not held after the prompt: \(Fans.summary)")
+            }
         }
     }
 
@@ -213,12 +248,19 @@ final class ShowController {
         // put back, journal or not; what they paused is read back below.
         Sweeper.user.stop()
         Sweeper.root.stop()
+        FanHold.shared.stop()
+        heldFans = nil
         Journal.shared.load()
         guard Journal.shared.exists else { engaged = false; warnings = []; onChange?(); return }
 
         var admin = [PMSet.restoreLowPower(), PMSet.restoreLidSleep(), TimeMachine.restore(),
                      SoftwareUpdate.restore()].compactMap { $0 }
         admin += resumeSteps()
+        // The helper hands the fans back itself; root does it only if it has not.
+        if Journal.shared["fans"] != nil, !FanHold.waitForRelease() {
+            ShowLog.note("fans: not back with macOS after the helper was told to stop: \(Fans.summary)")
+            if let a = FanHold.resetStep() { admin.append(a) }
+        }
 
         var unrestored = Set<String>()
         var notes: [String] = []
@@ -228,6 +270,10 @@ final class ShowController {
                 unrestored.formUnion(step.journalKeys)
                 notes.append(step.label)
             }
+        }
+        if Journal.shared["fans"] != nil, !unrestored.contains("fans"), !Fans.automatic {
+            unrestored.insert("fans")
+            notes.append("Fans")
         }
         if Journal.shared["timeMachine"] as? Bool == true, !unrestored.contains("timeMachine"), !TimeMachine.restored {
             unrestored.insert("timeMachine")
@@ -291,6 +337,14 @@ final class ShowController {
     }
 
     func toggle() { engaged ? restore() : engage() }
+
+    /// A fan guard that took hold and has since let go: quiet mode hands the fans back to
+    /// macOS while the Mac is hot.
+    var fanProblem: String? {
+        guard engaged, let mode = heldFans, !Fans.held(mode) else { return nil }
+        return mode == .full ? "The fans are no longer at full speed"
+            : "The fans are back with macOS: the Mac ran hot, or something else took them"
+    }
 
     /// A journal on disk at launch means the last session never restored.
     func recoverIfNeeded() -> Bool {

@@ -12,6 +12,10 @@ struct ShowModeMain {
             printStatus()
             return
         }
+        // The root fan helper (see FanHold): never an app.
+        if CommandLine.arguments.count > 1, CommandLine.arguments[1] == "--fans" {
+            exit(FanHold.main(Array(CommandLine.arguments.dropFirst(2))))
+        }
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate
@@ -26,6 +30,8 @@ struct ShowModeMain {
         print("True Tone:       \(CoreBrightness.trueTone().map { "\($0)" } ?? "unsupported")")
         print("Low power:       \(PMSet.lowPowerBySource().map { "\($0.key) \($0.value.key)=\($0.value.value)" }.sorted())")
         print("Lid sleep off:   \(PMSet.sleepDisabled)")
+        print("Fans:            \(Fans.summary)\(FanHold.running ? ", helper running" : "")")
+        print("Fan helper:      \(Fans.unavailable ?? FanHold.cannotStart ?? "can start")")
         print("Focus shortcuts: \(Focus.isInstalled ? "installed" : "not installed")")
         print("Accessibility:   \(CursorFence.accessibilityTrusted)")
         print("Journal pending: \(Journal.shared.exists)")
@@ -167,7 +173,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func toggleGuard(_ sender: NSMenuItem) {
         guard let g = sender.representedObject as? Guard else { return }
-        Settings.shared.set(g, !Settings.shared.isOn(g))
+        let on = !Settings.shared.isOn(g)
+        Settings.shared.set(g, on)
+        if on, g == .fansFull { Settings.shared.set(.fansQuiet, false) }
+        if on, g == .fansQuiet { Settings.shared.set(.fansFull, false) }
     }
 
     @objc private func toggleDisplay(_ sender: NSMenuItem) {
@@ -338,7 +347,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         let checks = Preflight.items()
         let live = show.engaged ? checks.filter(\.live).map(\.text) : []
-        for w in show.warnings + [show.layout.problem, PrivacyDots.problem()].compactMap({ $0 }) + live {
+        for w in show.warnings + [show.layout.problem, show.fanProblem, PrivacyDots.problem()].compactMap({ $0 }) + live {
             let i = NSMenuItem(title: "⚠︎ " + w, action: nil, keyEquivalent: "")
             i.isEnabled = false
             menu.addItem(i)

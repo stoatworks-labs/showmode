@@ -47,6 +47,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Display & system idle sleep | IOKit power assertions (die with the process) |
 | Lid-close sleep *(off by default)* | `pmset disablesleep 1` — admin prompt |
 | Low Power Mode | `pmset <source> powermode/lowpowermode 0`, per power source — admin prompt, only if it is on |
+| Fans *(off by default, Apple silicon)* | every fan fixed at its maximum (full speed) or minimum (quiet) through the SMC: mode key `F0Md` to 1 and target `F0Tg` to `F0Mx` or `F0Mn`, with the test flag `Ftst` set first where the SMC asks for it (M1–M4). Writing needs root, so a root helper holds them for the show — Show Mode's own executable, run from a copy of the bundle in a root-only directory once `codesign` has checked the copy against the running app's designated requirement. It hands the fans back to macOS at the end or as soon as Show Mode goes away. Quiet hands them back while macOS reports the Mac hot enough to slow down (`thermalState` serious) and takes them again after five cool minutes. Left alone if another app already has them — admin prompt |
 | Screen saver | `com.apple.screensaver idleTime 0` (current host) |
 | Hot corners | all four `wvous-*` set to no-op, Dock restarted |
 | Mission Control / App Exposé / gestures | `mcx-expose-disabled`, the four Dock gesture keys, Dock restarted |

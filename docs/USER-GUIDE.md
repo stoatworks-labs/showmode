@@ -84,6 +84,12 @@ and keeps the mouse cursor off the screens the audience is looking at.
 > relaunch; Keyboard Setup Assistant, which needs a device macOS doesn't recognise; and what the
 > experimental user-activity heartbeat changes.
 >
+> **Fans (not released yet):** checked without the password on a MacBook Pro (M4 Max,
+> macOS 26.4.1): reading both fans' speeds and limits, the helper refusing to change anything
+> when it isn't root, and the copy check passing a good copy and refusing one with a changed
+> byte of code, an edited Info.plist or another developer's signature. **Not checked:**
+> everything that needs the password, which is everything that actually moves a fan.
+>
 > **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
@@ -136,6 +142,8 @@ the next start.
 | Prevent sleep on lid close | Sets `pmset disablesleep`, so a laptop driving a projector keeps going with its lid shut. **Off by default** because it asks for your password on every start and end. |
 | Turn off Low Power Mode | Only if it is on, per power source (battery and mains separately). Asks for your password once. |
 | Disable screen saver | Sets the idle time to never. |
+| Run the fans at full speed (admin) | **Off by default.** Every fan at its top speed for the whole show. See [Fans](#fans). |
+| Keep the fans at their quietest (admin) | **Off by default.** Every fan at its slowest, for a room quiet enough to hear them. See [Fans](#fans). |
 | Disable hot corners | Sets all four corners to do nothing, and restarts the Dock so it takes effect. |
 | Disable Mission Control, Exposé & gestures | Turns off Mission Control and App Exposé, including their keys, and the swipe and pinch gestures for Mission Control, App Exposé, Show Desktop and Launchpad. Restarts the Dock. |
 | Disable swipe between Spaces & full-screen apps | Stops a sideways three- or four-finger swipe on the trackpad (two fingers on a Magic Mouse) sliding the show off to another desktop or full-screen app. A three-finger swipe set to *Swipe between pages* is left alone, since it only goes back and forward inside an app. Your swipe settings come back when the show ends. |
@@ -327,6 +335,33 @@ What I've left alone on purpose: the processes that answer Spotlight searches, i
 security scanning, anything to do with Apple Intelligence (switching it off can delete its
 models and download them again), and Location Services (macOS 26 doesn't let an app switch it
 off).
+
+## Fans
+
+There are two fan guards and you get one or the other: ticking one unticks the other. Both ask
+for your password at the start of the show, and both need an Apple silicon Mac with fans (a
+MacBook Air hasn't got any).
+
+**Full speed** runs every fan flat out for the show. A Mac working hard for hours warms up, and
+once it's hot enough macOS slows it down to cope, which on a show looks like dropped frames.
+Full speed gives it all the cooling it has from the first cue, so it gets there later, if at
+all. It's loud: a 16-inch MacBook Pro's fans top out near 5,800 rpm. Fine at the back of a
+tent, less so beside a string quartet.
+
+**Quiet** holds every fan at its slowest (1,350 rpm on that MacBook Pro), so they don't ramp up
+in the middle of a scene when the Mac gets busy. The Mac does warm up faster. If it gets hot
+enough for macOS to start slowing it down, Show Mode hands the fans back to macOS until the Mac
+has been cool for five minutes, then holds them at their slowest again, and the menu says so
+while it's happening. A Mac doing almost nothing can stop its fans altogether, so on an idle Mac
+quiet can be a touch louder than leaving them alone; it earns its keep on a Mac that's working.
+
+Fan speeds can only be set as root, so a small helper holds them for the show. The helper is
+Show Mode itself, run from a copy in a folder only the system can write to, and only after macOS
+has checked that the copy is signed by the same developer as the app you're running. It gives the fans back
+to macOS at the end of the show, when you quit, and by itself the moment Show Mode goes away,
+crash included, so the fans can't be left stuck. If another app is already controlling the fans
+(Macs Fan Control, TG Pro, Stats), Show Mode leaves them alone and tells you. If something takes
+them back mid-show, it takes them again a few times and then lets go rather than fight over them.
 
 ## Pre-show checks
 

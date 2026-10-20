@@ -6,6 +6,8 @@ enum Guard: String, CaseIterable {
     case sleep
     case lidSleep
     case lowPower
+    case fansFull
+    case fansQuiet
     case screenSaver
     case hotCorners
     case missionControl
@@ -44,6 +46,8 @@ enum Guard: String, CaseIterable {
         case .sleep: return "Prevent display & system sleep"
         case .lidSleep: return "Prevent sleep on lid close (admin)"
         case .lowPower: return "Turn off Low Power Mode (admin)"
+        case .fansFull: return "Run the fans at full speed (admin)"
+        case .fansQuiet: return "Keep the fans at their quietest (admin)"
         case .screenSaver: return "Disable screen saver"
         case .hotCorners: return "Disable hot corners"
         case .missionControl: return "Disable Mission Control, Exposé & gestures"
@@ -81,7 +85,8 @@ enum Guard: String, CaseIterable {
 
     var defaultOn: Bool {
         switch self {
-        case .lidSleep, .timeMachine, .spotlight, .softwareUpdate, .awdl, .userActivity, .gameMode, .muteOtherApps:
+        case .lidSleep, .fansFull, .fansQuiet, .timeMachine, .spotlight, .softwareUpdate, .awdl, .userActivity, .gameMode,
+             .muteOtherApps:
             return false
         default:
             return true
@@ -90,7 +95,7 @@ enum Guard: String, CaseIterable {
 
     /// How the menu groups them.
     static let sections: [(title: String, guards: [Guard])] = [
-        ("Power", [.sleep, .lidSleep, .lowPower, .screenSaver]),
+        ("Power", [.sleep, .lidSleep, .lowPower, .screenSaver, .fansFull, .fansQuiet]),
         ("Screen & input", [.hotCorners, .missionControl, .spaceSwipe, .clickToShowDesktop, .stageManager,
                             .spotlightKey, .wallpaper]),
         ("Interruptions", [.notifications, .systemSounds, .muteOtherApps, .crashDialogs, .airplayReceiver, .keyboardSetup]),
@@ -113,6 +118,11 @@ final class Settings {
     }
 
     func set(_ g: Guard, _ on: Bool) { d.set(on, forKey: "guard.\(g.rawValue)") }
+
+    /// The two fan guards are one choice: ticking one unticks the other.
+    var fanMode: Fans.Mode? {
+        isOn(.fansFull) ? .full : isOn(.fansQuiet) ? .quiet : nil
+    }
 
     /// Stable keys (see `DisplayInfo.key`) of displays the cursor may not enter.
     var blockedDisplays: Set<String> {
