@@ -187,3 +187,7 @@ scripts/build-app.sh
 
 That builds a universal `dist/Show Mode.app`, Developer ID-signed if that identity is in the
 keychain (a stable signature means the Accessibility grant survives rebuilds).
+
+<!-- attributions:start -->
+This project is built on other people's work — see [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+<!-- attributions:end -->

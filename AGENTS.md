@@ -14,7 +14,9 @@ Invariants for anyone (human or agent) changing this repo.
 - **Generated, do not edit:** `Sources/ShowMode/StoatworksAbout*.swift` come from
   `stoatworks-backend/scripts/sync-about.py`; `.github/FUNDING.yml` and
   `.github/ISSUE_TEMPLATE/` from the backend's sync scripts; the README block between the
-  `downloads` markers from `release/gen-downloads.py`.
+  `downloads` markers from `release/gen-downloads.py`; `ATTRIBUTIONS.md` and the README's
+  `attributions` block from `scripts/sync-attributions.py`, whose Stats credit for the fan
+  guard lives in the backend's `attributions/derived.json`.
 - **One version:** `Sources/ShowMode/Version.swift`. `scripts/build-app.sh` and sync-about
   both read it.
 - **Verify on a real machine.** What is and is not verified lives in `docs/USER-GUIDE.md`'s
