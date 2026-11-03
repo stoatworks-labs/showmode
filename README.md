@@ -28,14 +28,14 @@ setting back how you had it.
 
 ## Download
 
-**[v0.5.0](https://github.com/stoatworks-labs/showmode/releases/tag/v0.5.0)** — prebuilt for macOS. Pick your platform:
+**[v0.6.0](https://github.com/stoatworks-labs/showmode/releases/tag/v0.6.0)** — prebuilt for macOS. Pick your platform:
 
 <details>
 <summary><b>macOS</b> — Universal (Apple Silicon + Intel)</summary>
 
 | Build | Download | Size |
 | --- | --- | --- |
-| Universal (Apple Silicon + Intel) · .dmg disk image | [`showmode-0.5.0-macos-universal.dmg`](https://github.com/stoatworks-labs/showmode/releases/download/v0.5.0/showmode-0.5.0-macos-universal.dmg) | 831 KB |
+| Universal (Apple Silicon + Intel) · .dmg disk image | [`showmode-0.6.0-macos-universal.dmg`](https://github.com/stoatworks-labs/showmode/releases/download/v0.6.0/showmode-0.6.0-macos-universal.dmg) | 935 KB |
 
 </details>
 
