@@ -8,6 +8,8 @@ anything clever during the show (going to sleep, popping up notifications, fling
 Control onto the projector, letting the cursor wander onto the LED wall), then puts every
 setting back how you had it.
 
+The [project page](https://stoatworks-labs.com/software/showmode/) has the downloads and the [user guide](https://stoatworks-labs.com/software/showmode/guide/).
+
 **⌃⌥⌘S** starts/ends show mode · **⌃⌥⌘F** pauses the cursor fence (to reach a show screen deliberately)
 
 > **Field proven.** It's been used on real events, not just on my desk. On macOS 26.4 I've also
