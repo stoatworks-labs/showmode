@@ -19,7 +19,8 @@ and keeps the mouse cursor off the screens the audience is looking at.
 > **Checked on a second screen (v0.3.0):** with a real extended display attached (a Roland
 > USB video output) and a virtual one, the cursor fence held a gliding pointer at the edge
 > with Accessibility granted and pulled back a pointer warped onto the show screen, and pausing
-> and resuming it worked. The display lock split a mirrored display back to extended, made
+> and resuming it worked. The display lock (now the screen layout lock) split a mirrored
+> display back to extended, made
 > the locked display main again after something else took over, gave up after repeated
 > reversals instead of fighting, and put the original main display back at the end of the
 > show and after the app was killed mid-show.
@@ -106,7 +107,22 @@ and keeps the mouse cursor off the screens the audience is looking at.
 > Dock the same request Logi Options+ sends); the trackpad gestures under the forced setting; a
 > Mac with managed Dock settings of its own; and macOS before 26.
 >
-> **Not yet checked:** the display lock with AirPlay, Sidecar or DisplayLink screens, which
+> **Screen layout lock and PowerPoint (not released yet, checked 2026-11-03 on macOS 26.4.1,
+> PowerPoint 16.112.3):** on virtual displays only, two made in software beside a MacBook Pro's
+> built-in screen, with a test copy of Show Mode that had every other guard switched off. With
+> the built-in screen cloned to one and the other extended, a Presenter View show made PowerPoint
+> split the clone; show mode moved the slides to the extended screen and put the clone back
+> within a second and a half, so Presenter View was on the built-in screen and its clone, and
+> nothing changed when the show ended. With every screen extended and Presenter View off,
+> PowerPoint mirrored one; show mode split it and moved the slides onto it. A mirror made by
+> hand mid-show was split again in under half a second. With only the clone, and nowhere free
+> for the slides, the clone stayed split with a steady note in the menu and PowerPoint put it
+> back at the end. **Not checked:** real monitors and projectors; macOS asking for permission to
+> control PowerPoint (the test copy inherited a permission already given, so neither the
+> question nor a refusal was seen); the two new menu items used by hand; a full show start with
+> every guard on; and Keynote, which this doesn't cover.
+>
+> **Not yet checked:** the screen layout lock with AirPlay, Sidecar or DisplayLink screens, which
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
 > your show uses one of those screens, try it with them connected before the show.
@@ -174,7 +190,7 @@ the next start.
 | Pin light/dark appearance | If the appearance is set to Auto, switches it to whichever of Light or Dark is showing now, so it cannot flip at sunset mid-show. Auto comes back when the show ends. |
 | Quit colour-shift apps | Quits f.lux, Shifty and Lunar if they are running, and opens them again afterwards. |
 | Fence cursor off show screens | See [Keeping the cursor off the show screens](#keeping-the-cursor-off-the-show-screens). |
-| Lock main display & keep new screens extended | See [Keeping the display arrangement](#keeping-the-display-arrangement). |
+| Screen layout lock (main display, clones, new screens) | Keeps the main display, the clones and the extended screens the show started with, and keeps PowerPoint from rearranging them. See [Screen layout lock](#screen-layout-lock). |
 | Hide privacy dots on full-screen external displays | Needs a one-time step in Recovery first. See [Privacy dots](#privacy-dots). |
 | Turn off Stage Manager | Stops Stage Manager sliding the show window into a strip at the side when another window is clicked. Restarts WindowManager. |
 | Disable ⌘Space (Spotlight search) | Stops ⌘Space and ⌥⌘Space opening Spotlight over the show. |
@@ -245,10 +261,11 @@ purpose, to drag a window onto it, say. The masks change to a circle while it's 
 The fence also stands down on its own rather than trap you: if every screen is ticked, or the
 only screen you left unticked gets unplugged, it does nothing until that changes.
 
-## Keeping the display arrangement
+## Screen layout lock
 
-With **Lock main display & keep new screens extended** on (it is by default), show mode holds
-on to the display arrangement the show started with.
+With **Screen layout lock** on (it is by default), show mode holds on to the display
+arrangement the show started with: which screen is main, which screens are clones of which,
+and which are extended.
 
 **The main display stays put.** The main display is the one with the menu bar and the Dock,
 and it's where new windows and a lot of apps' dialogs appear. Choose it under **Main Display**,
@@ -259,10 +276,43 @@ screens stay where they are relative to each other, and only which one carries t
 changes back. If the display you chose isn't connected at start, show mode says so and makes
 it main the moment it appears.
 
-**New mirrors become extended.** Whatever's mirrored when the show starts is taken as
-intentional (a confidence monitor showing the output, say) and left alone. Any screen that
-starts mirroring during the show, whether it's a newly plugged-in projector macOS has decided
-to mirror or a stray ⌘F1, is split back out to an extended display about a second later.
+**Clones stay clones.** Whatever's mirrored when the show starts is taken as intentional (the
+laptop's screen cloned to a monitor at the desk, say). If something splits a clone during the
+show, show mode puts it back about a second later.
+
+The something is usually PowerPoint. Plug a MacBook into a desk monitor cloned to the laptop
+and a projector extended, start a slide show with Presenter View, and PowerPoint splits the
+clone, puts Presenter View on the laptop alone and the slides on the desk monitor, which it
+has just made into a third screen. The projector, the one screen the audience can see, shows
+the desktop. Show mode moves PowerPoint's slides onto the projector and clones the desk monitor
+back to the laptop, so Presenter View is on both. In testing it was all done within a second
+and a half of the show starting. When the show ends, PowerPoint goes to put back the mirror it
+split, finds it already there, and carries on as if that had been the plan all along.
+
+To move the slides, show mode needs permission to control PowerPoint. With PowerPoint open,
+choose **Setup → Let Show Mode Move PowerPoint's Slides…** before doors and say yes when macOS
+asks. Skip it and macOS is likely to ask at the first show instead, over Presenter View, which
+is a poor moment to be reading dialogs. If it's been refused, that item opens the switch in
+System Settings (Privacy & Security → Automation). Without it, show mode leaves the clone split rather than put a mirror on top of
+the slides, and says so in its menu.
+
+**PowerPoint Slides On** chooses the screen the slides go to. Left on *The first screen
+extended at start*, they go to the first screen that was extended when the show started (the
+projector, in the setup above). If there's no such screen free, a laptop with only the cloned
+monitor say, the slides have nowhere else to go: the clone stays split for the show, with a note
+in the menu. The same happens, naming the app, if anything other than PowerPoint is full screen
+on the split-off monitor. Show mode keeps checking every few seconds and puts the clone back as
+soon as nothing is in the way.
+
+**New mirrors become extended.** Any screen that starts mirroring during the show, whether it's
+a newly plugged-in projector macOS has decided to mirror or a stray ⌘F1, is split back out to an
+extended display about a second later. PowerPoint does this one too: start a show without
+Presenter View with every screen extended and it mirrors them all, so the projector gets a copy
+of the laptop's screen at the laptop's resolution and shape. Show mode splits the mirror and
+moves the slides onto the projector at its own resolution, or leaves the mirror alone (with a
+note) if it isn't allowed to move them. With a clone already in place and Presenter View off, PowerPoint
+changes nothing and shows the slides on the main display and its clone, and show mode has
+nothing to undo. If you want the slides on the projector, use Presenter View.
 
 Changing which display is main makes every screen blink for a moment, the way it does in
 System Settings. Show mode only does it when something else has already moved the main
@@ -272,7 +322,7 @@ it, says so in its menu, and leaves the screens alone for the rest of the show. 
 is, it clearly wants the displays more than show mode does.
 
 When the show ends, the display that was main before it becomes main again. Screens that
-were split out of a mirror stay extended: the mirror was macOS's guess, not yours.
+were split out of a new mirror stay extended: that mirror was macOS's guess, not yours.
 
 Choosing a main display that's also fenced off puts the menu bar out of the cursor's reach,
 so show mode warns you at start. ⌃⌥⌘F pauses the fence.
@@ -435,7 +485,7 @@ With **Watch for remote sessions & keep the output black** ticked, show mode che
 seconds. It names an active session in the menu and in its log (Screen Sharing or VNC, Apple
 Remote Desktop, NoMachine, AnyDesk and TeamViewer are recognised), warns if a display has been
 blacked out (in the menu, marked ⚠︎), and puts the black wallpaper back if anything changed it.
-The display lock keeps your main display main whatever a session does. If you use a remote tool
+The screen layout lock keeps your main display main whatever a session does. If you use a remote tool
 on the show Mac, set it not to change the resolution or the wallpaper on connect, and rehearse
 with it.
 
@@ -461,7 +511,7 @@ relaunch after a crash also restores it.
 ## What it did
 
 Show mode keeps a plain log of what it changes at `~/Library/Logs/ShowMode.log`: the fence
-coming on and in which mode, and every correction the display lock makes. Console.app opens
+coming on and in which mode, and every correction the screen layout lock makes. Console.app opens
 it.
 
 ## Putting things back

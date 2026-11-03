@@ -21,13 +21,39 @@ Invariants for anyone (human or agent) changing this repo.
   both read it.
 - **Verify on a real machine.** What is and is not verified lives in `docs/USER-GUIDE.md`'s
   status block — update it when something new is actually run, never because it compiles.
-- **Display lock:** `DisplayLayout` registers and removes ONE C callback constant — removal
-  matches on the function pointer, and two identical closure literals are two pointers. Keep
-  its fight limit: a layout something else keeps reverting must be let go, not looped on.
+- **Screen layout lock (`DisplayLayout`, once "display lock"):** registers and removes ONE C
+  callback constant — removal matches on the function pointer, and two identical closure
+  literals are two pointers. Keep its fight limit: a layout something else keeps reverting must
+  be let go, not looped on. Never re-mirror a clone over a window that covers it (a full-screen
+  player would be left with no screen); a notice that holds a clone back re-checks every 3 s,
+  since what blocks it ends without a display callback.
+- **PowerPoint for Mac rearranges the screens** (16.112.3, macOS 26.4.1, benched on virtual
+  displays): Presenter View on → it splits every mirror at show start, Presenter View on main,
+  slides on a screen that came out of the mirror (the old clone, not the extended projector), and
+  re-mirrors at the end. Presenter View off with everything extended → it mirrors the screens;
+  off with a mirror already there → no change, slides on main. It never fights a change made
+  mid-show, and never follows one either: the lock has to move the slides itself. Its AppleScript
+  traps: `bounds` of a slide show window is a silent no-op, so set `left position`, `top`,
+  `width`, `height` one `try` each (setting one to its current value is -10006); `out` is a
+  dictionary word, so `set out to {}` fails (-10003); `run slide show (slide show settings of
+  active presentation)` needs the parentheses (-50). Ask only `if application id … is running`,
+  or the question launches it.
+- **Off the main thread, `NSRunningApplication.runningApplications(withBundleIdentifier:)`
+  sometimes missed a PowerPoint that had been running for minutes.** Take pids on main and hand
+  them over.
 - **Testing multi-display without a rig:** a `CGVirtualDisplay` (private, CoreGraphics) makes
   a real second display in-process. A helper that inspects display state must run a run loop
   or be a fresh process each time — CoreGraphics caches display state per process and only
-  refreshes it from the run loop.
+  refreshes it from the run loop. The display only comes online if its process runs
+  `[NSApp run]` and its descriptor has colour primaries and a white point. WindowServer
+  remembers a virtual display by vendor, model and serial: one whose first appearance failed
+  stays off ever after, so change the serial rather than debug it. A mode can be listed twice;
+  pick the one `CGDisplayModeIsUsableForDesktopGUI` passes (the other fails with 1001).
+- **Benching the lock against PowerPoint:** virtual displays plus a bench copy (see "Testing
+  without Accessibility") with every other guard off (`defaults import` a plist of
+  `guard.<name>` = false), engaged by a posted ⌃⌥⌘S. `CGWindowListCopyWindowInfo` shows where
+  PowerPoint's windows are; owner names need no Screen Recording permission, but the titles
+  that tell Presenter View from the slides do.
 - **Appearance goes through SkyLight** (`SLSSetAppearanceThemeSwitchesAutomatically`). Writing
   `AppleInterfaceStyleSwitchesAutomatically` changes nothing live — System Settings kept
   showing Auto — so never go back to the preference-key approach.

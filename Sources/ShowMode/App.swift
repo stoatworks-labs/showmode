@@ -50,6 +50,10 @@ struct ShowModeMain {
         for d in DisplayInfo.all() {
             print("Display:         \(d.name) key=\(d.key) bounds=\(d.bounds)\(d.isMain ? " main" : "")")
         }
+        for id in DisplayLayout.online() where CGDisplayMirrorsDisplay(id) != kCGNullDirectDisplay {
+            print("Clone:           \(DisplayLayout.key(id)) mirrors \(DisplayLayout.key(CGDisplayMirrorsDisplay(id)))")
+        }
+        print("Slides on:       \(Settings.shared.slidesDisplay ?? "first screen extended at start")")
         print("Time Machine:    auto=\(TimeMachine.autoBackup.map { "\($0)" } ?? "unreadable") running=\(TimeMachine.backingUp)")
         print("Updates managed: \(SoftwareUpdate.managed)")
         print("AWDL up:         \(AWDL.up.map { "\($0)" } ?? "no interface")")
@@ -229,6 +233,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
+    @objc private func chooseSlides(_ sender: NSMenuItem) {
+        Settings.shared.slidesDisplay = sender.representedObject as? String
+    }
+
+    /// macOS asks once whether Show Mode may control PowerPoint, and only while PowerPoint is
+    /// open. Better before doors than at the first slide show.
+    @objc private func allowPowerPoint() {
+        guard PowerPoint.running else {
+            alert("Open PowerPoint first",
+                  "macOS asks whether Show Mode may control PowerPoint only while PowerPoint is open. Open it, then choose this again.")
+            return
+        }
+        DispatchQueue.global().async {
+            let answer = PowerPoint.slideShows(timeout: 120)
+            DispatchQueue.main.async {
+                switch answer {
+                case .shows:
+                    self.notify("Show Mode can move PowerPoint's slides.")
+                case .notAllowed:
+                    self.alert("Show Mode can't control PowerPoint",
+                               "Turn on Microsoft PowerPoint under Show Mode in System Settings ▸ Privacy & Security ▸ Automation.")
+                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation")!)
+                case .none:
+                    self.alert("PowerPoint didn't answer", "Try again once PowerPoint has finished opening.")
+                }
+            }
+        }
+    }
+
     @objc private func toggleHide() { Settings.shared.hideOnBlocked.toggle() }
 
     /// Allows or stops allowing an app's sound; mid-show the muting follows at once.
@@ -352,7 +385,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         let checks = Preflight.items()
         let live = show.engaged ? checks.filter(\.live).map(\.text) : []
-        for w in show.warnings + [show.layout.problem, show.fanProblem, PrivacyDots.problem()].compactMap({ $0 }) + live {
+        for w in show.warnings + [show.layout.problem, show.layout.notice, show.fanProblem,
+                                  PrivacyDots.problem()].compactMap({ $0 }) + live {
             let i = NSMenuItem(title: "⚠︎ " + w, action: nil, keyEquivalent: "")
             i.isEnabled = false
             menu.addItem(i)
@@ -455,6 +489,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         mainItem.submenu = mainMenu
         menu.addItem(mainItem)
 
+        let slidesMenu = NSMenu()
+        let chosen = s.slidesDisplay
+        let firstExtended = NSMenuItem(title: "The first screen extended at start", action: #selector(chooseSlides(_:)),
+                                       keyEquivalent: "")
+        firstExtended.target = self
+        firstExtended.state = chosen == nil ? .on : .off
+        slidesMenu.addItem(firstExtended)
+        slidesMenu.addItem(.separator())
+        for d in displays {
+            let i = NSMenuItem(title: d.name + (d.isMain ? " (main now)" : ""), action: #selector(chooseSlides(_:)), keyEquivalent: "")
+            i.target = self
+            i.representedObject = d.key
+            i.state = chosen == d.key ? .on : .off
+            slidesMenu.addItem(i)
+        }
+        if let chosen, !displays.contains(where: { $0.key == chosen }) {
+            let i = NSMenuItem(title: "Chosen display (not connected)", action: nil, keyEquivalent: "")
+            i.state = .on
+            i.isEnabled = false
+            slidesMenu.addItem(i)
+        }
+        slidesMenu.addItem(.separator())
+        let how = NSMenuItem(title: s.isOn(.displayLayout)
+                             ? "Where the slides go when Show Mode puts the screens back"
+                             : "Off: turn on Screen layout lock in What Show Mode Disables",
+                             action: nil, keyEquivalent: "")
+        how.isEnabled = false
+        slidesMenu.addItem(how)
+        let slidesItem = NSMenuItem(title: "PowerPoint Slides On", action: nil, keyEquivalent: "")
+        slidesItem.submenu = slidesMenu
+        menu.addItem(slidesItem)
+
         let allowedItem = NSMenuItem(title: "Allowed to Play", action: nil, keyEquivalent: "")
         allowedItem.submenu = allowedToPlayMenu()
         menu.addItem(allowedItem)
@@ -522,6 +588,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case .unavailable:
             let i = NSMenuItem(title: "Privacy dots: hiding needs macOS 14.4", action: nil, keyEquivalent: "")
             i.isEnabled = false
+            setup.addItem(i)
+        }
+        if s.isOn(.displayLayout) {
+            let i = NSMenuItem(title: "Let Show Mode Move PowerPoint's Slides…", action: #selector(allowPowerPoint),
+                               keyEquivalent: "")
+            i.target = self
             setup.addItem(i)
         }
         if s.isOn(.timeMachine) {

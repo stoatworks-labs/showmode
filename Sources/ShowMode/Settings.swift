@@ -69,7 +69,7 @@ enum Guard: String, CaseIterable {
         case .autoAppearance: return "Pin light/dark appearance"
         case .colourApps: return "Quit colour-shift apps (f.lux etc.)"
         case .cursorFence: return "Fence cursor off show screens"
-        case .displayLayout: return "Lock main display & keep new screens extended"
+        case .displayLayout: return "Screen layout lock (main display, clones, new screens)"
         case .privacyDots: return "Hide privacy dots on full-screen external displays"
         case .mediaAnalysis: return "Pause photo & media analysis"
         case .appUpdaters: return "Turn off app update checks (Sparkle, Microsoft)"
@@ -136,6 +136,13 @@ final class Settings {
     var mainDisplay: String? {
         get { d.string(forKey: "mainDisplay") }
         set { d.set(newValue, forKey: "mainDisplay") }
+    }
+
+    /// Key of the display PowerPoint's slides are moved to when the screen layout lock puts the
+    /// screens back; nil means the first screen extended at the start.
+    var slidesDisplay: String? {
+        get { d.string(forKey: "slidesDisplay") }
+        set { d.set(newValue, forKey: "slidesDisplay") }
     }
 
     /// Hide the cursor when it reaches a blocked display anyway (the fallback when it cannot

@@ -13,8 +13,9 @@ setting back how you had it.
 > **Field proven.** It's been used on real events, not just on my desk. On macOS 26.4 I've also
 > run the power, screen saver, hot corner, Mission Control, True Tone and Night Shift guards and
 > every restore path end to end, and the cursor fence (with and without Accessibility), the
-> display lock, Do Not Disturb and appearance pinning on a real two-screen setup. Not tried yet:
-> the display lock with AirPlay, Sidecar or DisplayLink screens. v0.4.0's privacy dots and swipe
+> screen layout lock, Do Not Disturb and appearance pinning on a real two-screen setup. Not tried
+> yet: the screen layout lock with AirPlay, Sidecar or DisplayLink screens, and its new PowerPoint
+> handling (holding clones, moving the slides) anywhere but virtual displays. v0.4.0's privacy dots and swipe
 > between Spaces guards haven't done a show yet, and v0.5.0's new guards (system sounds, muting
 > other apps, background work, interruptions, remote sessions) have only been checked on the
 > bench. One correction: up to v0.5.0 the Mission Control guard didn't actually stop Mission
@@ -65,7 +66,7 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Auto light/dark appearance | SkyLight `SLSSetAppearanceThemeSwitchesAutomatically(false)` pins the showing appearance, the same call System Settings makes (the preference key alone changes nothing live); restored after |
 | Colour-shift apps | quits f.lux, Shifty, Lunar; relaunches them after |
 | Cursor fence | keeps the cursor off the screens you tick |
-| Display arrangement | keeps the chosen (or starting) main display main, and splits any screen that starts mirroring mid-show back to extended |
+| Screen layout lock | keeps the chosen (or starting) main display main, re-mirrors a clone something split (PowerPoint, for Presenter View) after moving PowerPoint's slides to the show screen, and splits any screen that starts mirroring mid-show back to extended |
 | Privacy dots | SkyLight `SLSSetSuppressPrivacyIndicatorOnExternalDisplays(true)`, the Privacy Indicators switch; only once the Recovery-only `system-override suppress-sw-camera-indication-on-external-displays=on` is set, and only on full-screen external displays (macOS rule). Restored after |
 | Stage Manager | `com.apple.WindowManager GloballyEnabled` off, WindowManager restarted |
 | ⌘Space | Spotlight's shortcuts (64 ⌘Space, 65 ⌥⌘Space) off in WindowServer through SkyLight `CGSSetSymbolicHotKeyEnabled`, which is not saved, so a restart mid-show brings them back anyway |
@@ -98,15 +99,21 @@ stands down rather than trap the cursor somewhere you can't reach it.
 Screens are remembered by vendor, model and serial, so your choice survives replugging and
 reboots.
 
-## Display arrangement
+## Screen layout lock
 
 The main display is made main by moving it to the origin of the global display space
 (`CGConfigureDisplayOrigin`, every display shifted by the same amount, so the arrangement is
 kept). A reconfiguration callback, debounced by a second, re-applies it and splits new mirrors
-(`CGConfigureDisplayMirrorOfDisplay(…, kCGNullDirectDisplay)`); displays already mirrored at
-start are left alone. If it has to put things right four times in twenty seconds it gives
-up, on the basis that something else clearly wants the displays more than it does. The
-previous main display is journalled and restored. Activity goes to `~/Library/Logs/ShowMode.log`.
+(`CGConfigureDisplayMirrorOfDisplay(…, kCGNullDirectDisplay)`). Displays mirrored at start are
+journalled as clones and mirrored again if something splits them, but not over a window that
+covers the whole display: PowerPoint's slide show window is moved first (AppleScript through
+`osascript`, so a hung PowerPoint times out rather than hanging Show Mode), anything else keeps
+the split until it goes. That is aimed at PowerPoint for Mac, which with Presenter View on splits
+every mirror for the show and puts the slides on the screen that came out, and with Presenter View
+off and the screens extended mirrors them all. If it has to put things right four times in twenty
+seconds it gives up, on the basis that something else clearly wants the displays more than it
+does. The previous main display is journalled and restored. Activity goes to
+`~/Library/Logs/ShowMode.log`.
 
 ## Privacy dots
 
