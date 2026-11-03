@@ -86,13 +86,7 @@ and keeps the mouse cursor off the screens the audience is looking at.
 > relaunch; Keyboard Setup Assistant, which needs a device macOS doesn't recognise; and what the
 > experimental user-activity heartbeat changes.
 >
-> **Fans (not released yet):** checked without the password on a MacBook Pro (M4 Max,
-> macOS 26.4.1): reading both fans' speeds and limits, the helper refusing to change anything
-> when it isn't root, and the copy check passing a good copy and refusing one with a changed
-> byte of code, an edited Info.plist or another developer's signature. **Not checked:**
-> everything that needs the password, which is everything that actually moves a fan.
->
-> **Mission Control (not released yet, checked 2026-10-20 on macOS 26.4.1):** the Mission
+> **Mission Control (v0.6.0, checked 2026-10-20 on macOS 26.4.1):** the Mission
 > Control guard in v0.5.0 and earlier stopped nothing on this macOS. The bench check above
 > watched its settings go off and come back, not Mission Control staying shut, and the Dock
 > ignores the setting it writes unless that setting is forced. With it on, ⌃↑ and ⌃↓ still
@@ -107,7 +101,7 @@ and keeps the mouse cursor off the screens the audience is looking at.
 > Dock the same request Logi Options+ sends); the trackpad gestures under the forced setting; a
 > Mac with managed Dock settings of its own; and macOS before 26.
 >
-> **Screen layout lock and PowerPoint (not released yet, checked 2026-11-03 on macOS 26.4.1,
+> **Screen layout lock and PowerPoint (v0.6.0, checked 2026-11-03 on macOS 26.4.1,
 > PowerPoint 16.112.3):** on virtual displays only, two made in software beside a MacBook Pro's
 > built-in screen, with a test copy of Show Mode that had every other guard switched off. With
 > the built-in screen cloned to one and the other extended, a Presenter View show made PowerPoint
@@ -126,9 +120,10 @@ and keeps the mouse cursor off the screens the audience is looking at.
 > may not answer the mirroring call the way a cabled display does; and a real sunset under a
 > pinned appearance (the pin itself was checked, but not an evening switch it holds off). If
 > your show uses one of those screens, try it with them connected before the show.
-> **Released at v0.5.0.** v0.3.1 is field proven; the guards new in v0.4.0 (privacy dots,
-> swipe between Spaces) and v0.5.0 (everything marked v0.5.0 above) haven't been run on a
-> show yet. v0.5.0 also draws the menu-bar masks in the menu bar's own colour, white over the
+> **Released at v0.6.0.** v0.3.1 is field proven; the guards new in v0.4.0 (privacy dots,
+> swipe between Spaces), v0.5.0 (everything marked v0.5.0 above) and v0.6.0 (the Mission
+> Control fix and the screen layout lock's PowerPoint handling) haven't been run on a show yet.
+> v0.5.0 also draws the menu-bar masks in the menu bar's own colour, white over the
 > blacked-out wallpaper, instead of red; a capture of the menu bar during a show (2026-10-11,
 > macOS 26.4.1) showed them solid white on the black bar.
 >
@@ -174,8 +169,6 @@ the next start.
 | Prevent sleep on lid close | Sets `pmset disablesleep`, so a laptop driving a projector keeps going with its lid shut. **Off by default** because it asks for your password on every start and end. |
 | Turn off Low Power Mode | Only if it is on, per power source (battery and mains separately). Asks for your password once. |
 | Disable screen saver | Sets the idle time to never. |
-| Run the fans at full speed (admin) | **Off by default.** Every fan at its top speed for the whole show. See [Fans](#fans). |
-| Keep the fans at their quietest (admin) | **Off by default.** Every fan at its slowest, for a room quiet enough to hear them. See [Fans](#fans). |
 | Disable hot corners | Sets all four corners to do nothing, and restarts the Dock so it takes effect. |
 | Disable Mission Control, Exposé & gestures | Turns off the keys for Mission Control, App Exposé and Show Desktop (⌃↑, ⌃↓, F11 and the Mission Control key, with or without ⇧, ⌃, ⌥ or ⌘), and the swipe and pinch gestures for Mission Control, App Exposé, Show Desktop and Launchpad. Restarts the Dock. It can't stop an app that opens Mission Control itself, which is what mouse software does: see the next one. |
 | Stop mouse & other apps opening Mission Control (admin) | **Off by default.** Switches Mission Control off in the Dock itself, so a mouse button set to Mission Control or App Exposé does nothing either. Asks for your password at the start and the end. See [Mission Control and mouse buttons](#mission-control-and-mouse-buttons). |
@@ -418,33 +411,6 @@ What I've left alone on purpose: the processes that answer Spotlight searches, i
 security scanning, anything to do with Apple Intelligence (switching it off can delete its
 models and download them again), and Location Services (macOS 26 doesn't let an app switch it
 off).
-
-## Fans
-
-There are two fan guards and you get one or the other: ticking one unticks the other. Both ask
-for your password at the start of the show, and both need an Apple silicon Mac with fans (a
-MacBook Air hasn't got any).
-
-**Full speed** runs every fan flat out for the show. A Mac working hard for hours warms up, and
-once it's hot enough macOS slows it down to cope, which on a show looks like dropped frames.
-Full speed gives it all the cooling it has from the first cue, so it gets there later, if at
-all. It's loud: a 16-inch MacBook Pro's fans top out near 5,800 rpm. Fine at the back of a
-tent, less so beside a string quartet.
-
-**Quiet** holds every fan at its slowest (1,350 rpm on that MacBook Pro), so they don't ramp up
-in the middle of a scene when the Mac gets busy. The Mac does warm up faster. If it gets hot
-enough for macOS to start slowing it down, Show Mode hands the fans back to macOS until the Mac
-has been cool for five minutes, then holds them at their slowest again, and the menu says so
-while it's happening. A Mac doing almost nothing can stop its fans altogether, so on an idle Mac
-quiet can be a touch louder than leaving them alone; it earns its keep on a Mac that's working.
-
-Fan speeds can only be set as root, so a small helper holds them for the show. The helper is
-Show Mode itself, run from a copy in a folder only the system can write to, and only after macOS
-has checked that the copy is signed by the same developer as the app you're running. It gives the fans back
-to macOS at the end of the show, when you quit, and by itself the moment Show Mode goes away,
-crash included, so the fans can't be left stuck. If another app is already controlling the fans
-(Macs Fan Control, TG Pro, Stats), Show Mode leaves them alone and tells you. If something takes
-them back mid-show, it takes them again a few times and then lets go rather than fight over them.
 
 ## Pre-show checks
 

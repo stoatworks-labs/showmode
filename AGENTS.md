@@ -152,6 +152,11 @@ Invariants for anyone (human or agent) changing this repo.
   quits at once when opened by hand, so its guard needs a real unrecognised keyboard to test.
   When a documented key does nothing, diff the preferences around the System Settings switch
   before giving up.
+- **The fan guards are held, not released** (`Guard.held`, from v0.6.0): out of the menu,
+  `isOn` false, until their first run as root (full on/off, a kill mid-show, quiet under load,
+  the reset step; it needs Allan at the password prompt). v0.6.0 took their guide text, guide
+  table rows, status entry and README row out; put them back from `d722c0e`'s
+  `docs/USER-GUIDE.md` and `README.md`, and "fans" to `build-app.sh`'s Apple Events text, when they ship.
 - **Fans go through the SMC, held by a root helper that is Show Mode itself** (`FanHold`).
   Writing a fan key needs root and a fixed speed needs holding, so the admin step copies the
   whole bundle into `/private/var/run/com.stoatworks.showmode.fans` (only root writes there),

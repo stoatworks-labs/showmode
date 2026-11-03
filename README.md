@@ -14,13 +14,13 @@ setting back how you had it.
 > run the power, screen saver, hot corner, Mission Control, True Tone and Night Shift guards and
 > every restore path end to end, and the cursor fence (with and without Accessibility), the
 > screen layout lock, Do Not Disturb and appearance pinning on a real two-screen setup. Not tried
-> yet: the screen layout lock with AirPlay, Sidecar or DisplayLink screens, and its new PowerPoint
-> handling (holding clones, moving the slides) anywhere but virtual displays. v0.4.0's privacy dots and swipe
-> between Spaces guards haven't done a show yet, and v0.5.0's new guards (system sounds, muting
-> other apps, background work, interruptions, remote sessions) have only been checked on the
-> bench. One correction: up to v0.5.0 the Mission Control guard didn't actually stop Mission
-> Control on macOS 26, because the Dock ignores the setting it wrote. The fix is on main and not
-> released yet. All the details are in the [user guide](docs/USER-GUIDE.md).
+> yet: the screen layout lock with AirPlay, Sidecar or DisplayLink screens, and v0.6.0's PowerPoint
+> handling (holding clones, moving the slides) anywhere but virtual displays. v0.4.0's privacy
+> dots and swipe between Spaces guards haven't done a show yet, and v0.5.0's new guards (system
+> sounds, muting other apps, background work, interruptions, remote sessions) have only been
+> checked on the bench. One correction: up to v0.5.0 the Mission Control guard didn't actually
+> stop Mission Control on macOS 26, because the Dock ignores the setting it wrote. v0.6.0 fixes
+> it. All the details are in the [user guide](docs/USER-GUIDE.md).
 
 ![The Show Mode menu](docs/screenshots/menu.png)
 
@@ -50,7 +50,6 @@ macOS builds are signed and notarised by Apple, so they open normally — no Gat
 | Display & system idle sleep | IOKit power assertions (die with the process) |
 | Lid-close sleep *(off by default)* | `pmset disablesleep 1` — admin prompt |
 | Low Power Mode | `pmset <source> powermode/lowpowermode 0`, per power source — admin prompt, only if it is on |
-| Fans *(off by default, Apple silicon)* | every fan fixed at its maximum (full speed) or minimum (quiet) through the SMC: mode key `F0Md` to 1 and target `F0Tg` to `F0Mx` or `F0Mn`, with the test flag `Ftst` set first where the SMC asks for it (M1–M4). Writing needs root, so a root helper holds them for the show — Show Mode's own executable, run from a copy of the bundle in a root-only directory once `codesign` has checked the copy against the running app's designated requirement. It hands the fans back to macOS at the end or as soon as Show Mode goes away. Quiet hands them back while macOS reports the Mac hot enough to slow down (`thermalState` serious) and takes them again after five cool minutes. Left alone if another app already has them — admin prompt |
 | Screen saver | `com.apple.screensaver idleTime 0` (current host) |
 | Hot corners | all four `wvous-*` set to no-op, Dock restarted |
 | Mission Control / App Exposé / gestures | the four Dock gesture keys, Dock restarted, and Mission Control's shortcuts off in WindowServer through SkyLight `CGSSetSymbolicHotKeyEnabled`, as ⌘Space is: ⌃↑ ⌃↓ and their ⇧ twins (32–35), F11 Show Desktop (36, 37) and the Mission Control key with each modifier (108–117). It also writes `mcx-expose-disabled`, which macOS 26's Dock ignores unless it's forced (next row) |

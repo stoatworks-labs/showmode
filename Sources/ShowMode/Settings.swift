@@ -95,8 +95,16 @@ enum Guard: String, CaseIterable {
         }
     }
 
-    /// How the menu groups them.
-    static let sections: [(title: String, guards: [Guard])] = [
+    /// Built but not offered yet. The fan guards wait for their first run as root: until then
+    /// nothing that moves a fan has run. A journal entry a test build left behind still restores.
+    static let held: Set<Guard> = [.fansFull, .fansQuiet]
+
+    /// How the menu groups them, less the held ones.
+    static var sections: [(title: String, guards: [Guard])] {
+        allSections.map { ($0.title, $0.guards.filter { !held.contains($0) }) }
+    }
+
+    private static let allSections: [(title: String, guards: [Guard])] = [
         ("Power", [.sleep, .lidSleep, .lowPower, .screenSaver, .fansFull, .fansQuiet]),
         ("Screen & input", [.hotCorners, .missionControl, .missionControlApps, .spaceSwipe, .clickToShowDesktop,
                             .stageManager, .spotlightKey, .wallpaper]),
@@ -116,7 +124,8 @@ final class Settings {
     private let d = UserDefaults.standard
 
     func isOn(_ g: Guard) -> Bool {
-        d.object(forKey: "guard.\(g.rawValue)") as? Bool ?? g.defaultOn
+        guard !Guard.held.contains(g) else { return false }
+        return d.object(forKey: "guard.\(g.rawValue)") as? Bool ?? g.defaultOn
     }
 
     func set(_ g: Guard, _ on: Bool) { d.set(on, forKey: "guard.\(g.rawValue)") }
